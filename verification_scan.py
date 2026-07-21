@@ -9,7 +9,7 @@
   2. python verification_scan.py 실행 (여러 구 도니까 몇 분 걸릴 수 있음)
   3. 결과물:
      - cvs/verification_log.csv   (스캔한 건물 전체 원본 로그)
-     - html/빈집살이_실측검증요약.html (요약 + 불일치 사례)
+     - html/역산공실탐지기반_실측검증요약.html (요약 + 불일치 사례)
 """
 import requests
 import time
@@ -206,7 +206,7 @@ def generate_html(log_rows) -> str:
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>빈집살이 — 실측 검증 요약 ({total}개 건물)</title>
+<title>역산공실탐지기반 — 실측 검증 요약 ({total}개 건물)</title>
 <style>
   * {{ box-sizing: border-box; margin: 0; padding: 0; }}
   body {{ font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f8f8f7; color: #0b0b0b; padding: 2rem; }}
@@ -226,7 +226,7 @@ def generate_html(log_rows) -> str:
 </style>
 </head>
 <body>
-<h1>빈집살이 — 실측 검증 요약</h1>
+<h1>역산공실탐지기반 — 실측 검증 요약</h1>
 <div class="subtitle">소상공인 상가정보 API × 국토교통부 건축HUB API 실시간 연동 결과 (자동 스캔, 원본 로그: verification_log.csv)</div>
 
 <div class="kpi-grid">
@@ -277,7 +277,7 @@ if __name__ == "__main__":
     print(f"CSV 저장 완료: {csv_path}")
 
     html = generate_html(log_rows)
-    html_path = os.path.join(HTML_DIR, "빈집살이_실측검증요약.html")
+    html_path = os.path.join(HTML_DIR, "역산공실탐지기반_실측검증요약.html")
     with open(html_path, "w", encoding="utf-8") as f:
         f.write(html)
     print(f"HTML 생성 완료: {html_path}")

@@ -105,7 +105,7 @@ if __name__ == "__main__":
     print("\n등급별 분포:", grade_counts)
 
 
-# HTML (compute_risk_grades() 결과로 빈집살이_안전등급모델.html 뽑음)
+# HTML (compute_risk_grades() 결과로 역산공실탐지기반_안전등급모델.html 뽑음)
 import json
 import os
 
@@ -147,7 +147,7 @@ def generate(rows: list) -> str:
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>빈집살이 — 노후상권 안전관리 우선순위 등급 모델</title>
+<title>역산공실탐지기반 — 노후상권 안전관리 우선순위 등급 모델</title>
 <style>
   * {{ box-sizing: border-box; margin: 0; padding: 0; }}
   body {{ font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f8f8f7; color: #0b0b0b; padding: 2rem; }}
@@ -170,7 +170,7 @@ def generate(rows: list) -> str:
 </style>
 </head>
 <body>
-<h1>빈집살이 — 노후상권 안전관리 우선순위 등급 모델</h1>
+<h1>역산공실탐지기반 — 노후상권 안전관리 우선순위 등급 모델</h1>
 <div class="subtitle">점포수 시계열 순증감률 + 최근4분기 평균폐업률 결합 | 노후 대형상가 {n_total}곳 실측 분석</div>
 
 <div class="caveat">
@@ -262,7 +262,7 @@ if __name__ == "__main__":
     print("\n등급별 분포:", grade_counts)
 
     html = generate(rows)
-    output_path = os.path.join(BASE_DIR, "html", "빈집살이_안전등급모델.html")
+    output_path = os.path.join(BASE_DIR, "html", "역산공실탐지기반_안전등급모델.html")
     with open(output_path, "w", encoding="utf-8") as f:
         f.write(html)
     print(f"\nHTML 생성 완료: {output_path}")

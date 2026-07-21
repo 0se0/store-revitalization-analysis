@@ -97,7 +97,7 @@ def generate(rows: list) -> str:
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>빈집살이 — 안전등급 지도 (1단계 메인화면)</title>
+<title>역산공실탐지기반 — 안전등급 지도 (1단계 메인화면)</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
 <style>
@@ -126,7 +126,7 @@ def generate(rows: list) -> str:
 </style>
 </head>
 <body>
-<h1>빈집살이 — 안전등급 지도 (1단계 메인화면 프로토타입)</h1>
+<h1>역산공실탐지기반 — 안전등급 지도 (1단계 메인화면 프로토타입)</h1>
 <div class="subtitle">서울시 노후 대형상가·전통시장 {len(rows)}곳 | 공실 순증감률 + 폐업률 결합 안전관리 우선순위 등급</div>
 
 <div class="caveat">
@@ -170,7 +170,7 @@ def generate(rows: list) -> str:
 <div class="note">
 ※ 방법론: 점포수 순증감률(2021~2025, 서울시 상권분석서비스)과 최근4분기 평균폐업률을 결합해 위험점수(0~100)
 산출, 절대기준 고정 임계값(60점 이상 D, 40~60 C, 20~40 B, 20미만 A)으로 {len(rows)}곳을 등급 분류
-(D {grade_counts['D']}곳·C {grade_counts['C']}곳·B {grade_counts['B']}곳·A {grade_counts['A']}곳). 상세 산출 근거는 `빈집살이_안전등급모델.html` 참고.
+(D {grade_counts['D']}곳·C {grade_counts['C']}곳·B {grade_counts['B']}곳·A {grade_counts['A']}곳). 상세 산출 근거는 `역산공실탐지기반_안전등급모델.html` 참고.
 지도 타일: © OpenStreetMap contributors.
 </div>
 
@@ -207,7 +207,7 @@ if __name__ == "__main__":
     result = analyze()
     rows = compute_risk_grades(result)
     html = generate(rows)
-    output_path = os.path.join(BASE_DIR, "html", "빈집살이_안전등급지도.html")
+    output_path = os.path.join(BASE_DIR, "html", "역산공실탐지기반_안전등급지도.html")
     with open(output_path, "w", encoding="utf-8") as f:
         f.write(html)
     print(f"생성 완료: {output_path}")

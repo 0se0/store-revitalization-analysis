@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>역산공실탐지기반 — 청년창업 공간 매칭 (2단계 UI 컨셉)</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f8f8f7; color: #0b0b0b; padding: 2rem; }
+  h1 { font-size: 18px; font-weight: 500; margin-bottom: 4px; }
+  .subtitle { font-size: 12px; color: #898781; margin-bottom: 1.5rem; }
+  .caveat { background: #fff7ed; border-left: 3px solid #f59e0b; padding: 0.75rem 1rem; font-size: 12px; color: #52514e; margin-bottom: 1.5rem; line-height: 1.6; }
+  .phone { max-width: 380px; margin: 0 auto; background: #fff; border-radius: 20px; border: 0.5px solid rgba(11,11,11,0.1); overflow: hidden; }
+  .phone-header { background: #0b0b0b; color: #fff; padding: 1rem 1.25rem; }
+  .phone-header-title { font-size: 15px; font-weight: 500; }
+  .phone-header-sub { font-size: 11px; color: #b4b2a9; margin-top: 2px; }
+  .screen { padding: 1.25rem; }
+  .screen-title { font-size: 13px; font-weight: 500; color: #52514e; margin-bottom: 0.75rem; }
+  .field { margin-bottom: 0.875rem; }
+  .field-label { font-size: 11px; color: #898781; margin-bottom: 4px; display: block; }
+  .field select, .field input { width: 100%; padding: 8px 10px; border: 0.5px solid #d3d1c7; border-radius: 8px; font-size: 13px; background: #f8f8f7; color: #0b0b0b; }
+  .btn-primary { width: 100%; background: #0b0b0b; color: #fff; border: none; border-radius: 8px; padding: 11px; font-size: 13px; font-weight: 500; cursor: pointer; margin-top: 0.5rem; }
+  .btn-primary:hover { background: #2c2c2a; }
+  .result-count { font-size: 12px; color: #898781; margin: 1.25rem 0 0.75rem; }
+  .listing { border: 0.5px solid #e8e7e2; border-radius: 10px; padding: 0.875rem; margin-bottom: 10px; cursor: pointer; transition: border-color 0.15s; }
+  .listing:hover { border-color: #2a78d6; }
+  .listing-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 6px; }
+  .listing-name { font-size: 13px; font-weight: 500; }
+  .grade-badge { display: inline-flex; align-items: center; gap: 4px; font-size: 10px; font-weight: 600; padding: 2px 8px; border-radius: 20px; }
+  .grade-a { background: #eaf3de; color: #27500a; }
+  .grade-b { background: #e6f1fb; color: #0c447c; }
+  .listing-detail { font-size: 11px; color: #898781; line-height: 1.6; }
+  .listing-price { font-size: 13px; font-weight: 500; margin-top: 6px; }
+  .listing-price span { font-size: 11px; color: #898781; font-weight: 400; }
+  .btn-interest { width: 100%; margin-top: 8px; background: #fff; border: 0.5px solid #d3d1c7; border-radius: 8px; padding: 7px; font-size: 12px; color: #52514e; cursor: pointer; }
+  .btn-interest:hover { background: #f1f0eb; }
+  .btn-interest.sent { background: #eaf3de; border-color: #97c459; color: #27500a; }
+  .flow-note { background: #eff6ff; border-left: 3px solid #2a78d6; padding: 0.75rem 1rem; font-size: 12px; color: #52514e; margin-top: 1.5rem; line-height: 1.6; }
+  .note { font-size: 11px; color: #898781; margin-top: 1.5rem; line-height: 1.6; }
+</style>
+</head>
+<body>
+<h1>역산공실탐지기반 — 청년창업 공간 매칭 (2단계 UI 컨셉)</h1>
+<div class="subtitle">1단계에서 안전점검이 완료된 공실만 추천하는 청년창업 매칭 기능 프로토타입</div>
+
+<div class="caveat">
+⚠️ <b>UI 컨셉 목업 고지:</b> 실제 서비스 데이터가 아니라 화면 흐름을 보여주기 위한 목업이다.
+매물 목록은 안전등급모델에서 A·B등급(정기 모니터링 이상 확인)으로 분류된 상권을 참고해 구성했다.
+실제 서비스 단계에서는 상가정보 API의 실시간 공실 데이터와 연동한다.
+</div>
+
+<div class="phone">
+  <div class="phone-header">
+    <div class="phone-header-title">창업공간 찾기</div>
+    <div class="phone-header-sub">2단계 · 안전 확인된 공실만 추천</div>
+  </div>
+  <div class="screen">
+    <div class="screen-title">어떤 공간을 찾으세요?</div>
+    <div class="field">
+      <label class="field-label">희망 지역</label>
+      <select id="region">
+        <option>서울 종로구</option>
+        <option>서울 중구</option>
+        <option>서울 영등포구</option>
+      </select>
+    </div>
+    <div class="field">
+      <label class="field-label">업종</label>
+      <select id="induty">
+        <option>카페·베이커리</option>
+        <option>공방·소품샵</option>
+        <option>사무실·스튜디오</option>
+      </select>
+    </div>
+    <div class="field">
+      <label class="field-label">월 임대료 예산 (만원)</label>
+      <input type="text" id="budget" placeholder="예: 150" value="150">
+    </div>
+    <button class="btn-primary" onclick="search()">안전 확인된 공실 찾기</button>
+
+    <div id="results" style="display:none;">
+      <div class="result-count">조건에 맞는 공실 <b id="count">3</b>곳을 찾았습니다</div>
+      <div id="listingBox"></div>
+    </div>
+  </div>
+</div>
+
+<div class="flow-note">
+📍 <b>화면 흐름:</b> 조건 입력 → 안전등급모델에서 B등급 이상으로 확인된 공실만 추천 →
+"관심 등록" 누르면 건물주에게 창업자 신원 노출 없이 익명으로 알림만 발송 →
+건물주가 응답하면 그때부터 직접 연락 채널이 열림 (초기 접촉 단계에서 양측 다 부담 없이 탐색 가능).
+</div>
+
+<div class="note">
+※ 목업 데이터 출처: 역산공실탐지기반_안전등급모델.html의 A·B등급 상권 목록 중 일부를 예시로 사용.
+실제 임대료·평수는 서비스 연동 전까지 가상 수치임.
+</div>
+
+<script>
+const LISTINGS = [
+  { name: "방산종합시장(방산시장) 1층 공실", grade: "A", gradeLabel: "안전등급 A · 양호", area: "18평", price: "138" },
+  { name: "동묘시장(동묘벼룩시장) 인근 공실", grade: "A", gradeLabel: "안전등급 A · 양호", area: "12평", price: "95" },
+  { name: "경동시장 2층 공실", grade: "B", gradeLabel: "안전등급 B · 정기 모니터링", area: "22평", price: "142" },
+];
+
+function search() {
+  document.getElementById('results').style.display = 'block';
+  document.getElementById('count').textContent = LISTINGS.length;
+  const box = document.getElementById('listingBox');
+  box.innerHTML = '';
+  LISTINGS.forEach((l, i) => {
+    const gradeClass = l.grade === 'A' ? 'grade-a' : 'grade-b';
+    box.innerHTML += `<div class="listing">
+      <div class="listing-top">
+        <div class="listing-name">${l.name}</div>
+        <span class="grade-badge ${gradeClass}">${l.gradeLabel}</span>
+      </div>
+      <div class="listing-detail">${l.area} · 안전점검 완료 · 즉시 입주 가능</div>
+      <div class="listing-price">월 ${l.price}만원 <span>(관리비 별도)</span></div>
+      <button class="btn-interest" id="btn-${i}" onclick="interest(${i})">관심 등록하기</button>
+    </div>`;
+  });
+}
+
+function interest(i) {
+  const btn = document.getElementById(`btn-${i}`);
+  btn.textContent = "건물주에게 익명으로 알림을 보냈습니다";
+  btn.classList.add('sent');
+  btn.disabled = true;
+}
+</script>
+</body>
+</html>

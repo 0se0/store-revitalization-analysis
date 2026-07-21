@@ -1,7 +1,7 @@
 """
 대안 알고리즘 - 노후 대형상가 점포수 시계열로 공실위험 보는 지표
 
-verification_scan.py로 253개 건물 실측 돌려봤는데 강변테크노마트 같은
+verification_scan.py로 303개 건물 실측 돌려봤는데 강변테크노마트 같은
 대형 복합상가는 등록전유부수랑 실제영업중수가 아예 말이 안 될 정도로 차이남
 (강변테크노마트: 등록 1건인데 실제 영업 500개...). 그래서 이런 건물은
 호실 단위로 매칭하는 게 의미가 없다고 판단해서, 대신 점포수 시계열
@@ -166,7 +166,7 @@ def analyze():
     return {'markets': result_markets, 'summary': summary}
 
 
-# HTML (analyze() 결과 받아서 빈집살이_대안알고리즘.html로 뽑음)
+# HTML (analyze() 결과 받아서 역산공실탐지기반_대안알고리즘.html로 뽑음)
 import json
 
 def generate(result: dict) -> str:
@@ -213,7 +213,7 @@ def generate(result: dict) -> str:
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>빈집살이 — 대안 알고리즘: 노후 대형상가 점포수 시계열 공실위험 지표</title>
+<title>역산공실탐지기반 — 대안 알고리즘: 노후 대형상가 점포수 시계열 공실위험 지표</title>
 <style>
   * {{ box-sizing: border-box; margin: 0; padding: 0; }}
   body {{ font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f8f8f7; color: #0b0b0b; padding: 2rem; }}
@@ -240,12 +240,12 @@ def generate(result: dict) -> str:
 </style>
 </head>
 <body>
-<h1>빈집살이 — 대안 알고리즘: 노후 대형상가 점포수 시계열 공실위험 지표</h1>
+<h1>역산공실탐지기반 — 대안 알고리즘: 노후 대형상가 점포수 시계열 공실위험 지표</h1>
 <div class="subtitle">서울시 우리마을가게 상권분석서비스(2021~2025, 20개 분기) | 노후 대형 복합상가 {n_total}곳 실측 분석</div>
 
 <div class="caveat">
-📍 <b>이 지표의 배경:</b> 실제 공공 API(소상공인 상가정보 + 국토교통부 건축HUB 건축물대장)로 253개
-상업건물을 검증한 결과(붙임: verification_scan.py, 빈집살이_실측검증요약.html), 세운상가·낙원상가·강변테크노마트 등 대형 상업건물 대부분에서 "등록된 전유부(법적
+📍 <b>이 지표의 배경:</b> 실제 공공 API(소상공인 상가정보 + 국토교통부 건축HUB 건축물대장)로 303개
+상업건물을 검증한 결과(붙임: verification_scan.py, 역산공실탐지기반_실측검증요약.html), 세운상가·낙원상가·강변테크노마트 등 대형 상업건물 대부분에서 "등록된 전유부(법적
 구분소유 단위) 수"와 "실제 영업 중인 사업체 수"가 근본적으로 불일치함을 확인했다(예: 강변테크노마트 영업중
 500개 vs 등록 전유부 1건). 개별 호실 단위 매칭이 구조적으로 어려운 이 건물 유형에는, 상가정보 API 자체의
 시계열 점포수 변화를 공실 위험의 대체 지표로 사용한다.
@@ -350,7 +350,7 @@ if __name__ == '__main__':
               f"최근 점포수 {s['latest_total']}개  최근4분기 평균폐업률 {s['recent_close_rate_avg']}%  [{s['risk_level']}]")
 
     html = generate(result)
-    output_path = os.path.join(BASE_DIR, "html", '빈집살이_대안알고리즘.html')
+    output_path = os.path.join(BASE_DIR, "html", '역산공실탐지기반_대안알고리즘.html')
     with open(output_path, 'w', encoding='utf-8') as f:
         f.write(html)
     print(f"\nHTML 생성 완료: {output_path}")

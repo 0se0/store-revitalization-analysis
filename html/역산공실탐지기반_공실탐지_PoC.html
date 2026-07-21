@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>빈집살이 — 공실 자동탐지 알고리즘 PoC</title>
+<title>역산공실탐지기반 — 공실 자동탐지 알고리즘 PoC</title>
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f8f8f7; color: #0b0b0b; padding: 2rem; }
@@ -31,7 +31,7 @@
 </style>
 </head>
 <body>
-<h1>빈집살이 — 공실 자동탐지 알고리즘 PoC (Proof of Concept)</h1>
+<h1>역산공실탐지기반 — 공실 자동탐지 알고리즘 PoC (Proof of Concept)</h1>
 <div class="subtitle">주소·층·호수 정규화 + 건축물대장×상가정보 교차매칭(차집합) 로직 검증</div>
 
 <div class="caveat">
@@ -77,14 +77,14 @@
     <div class="chart-title">건축물대장 전체 호수 vs 매칭 결과</div>
     <table>
       <thead><tr><th>주소</th><th>층</th><th>호</th><th>정규화 key</th><th>상태</th></tr></thead>
-      <tbody id="rowsBody"></tbody>
+      <tbody><tr><td>서울특별시 종로구 종로3가 15-2번지</td><td>1층</td><td>101호</td><td style="color:#898781;font-size:11px;">종로구종로3가152|1|101</td><td class="status-matched">매칭(영업중)</td></tr><tr><td>서울특별시 종로구 종로3가 15-2번지</td><td>1층</td><td>102호</td><td style="color:#898781;font-size:11px;">종로구종로3가152|1|102</td><td class="status-vacant">공실추정</td></tr><tr><td>서울특별시 종로구 종로3가 15-2번지</td><td>2층</td><td>201호</td><td style="color:#898781;font-size:11px;">종로구종로3가152|2|201</td><td class="status-vacant">공실추정</td></tr><tr><td>서울 중구 을지로 120</td><td>지하1층</td><td>B101호</td><td style="color:#898781;font-size:11px;">중구을지로120|B1|101</td><td class="status-matched">매칭(영업중)</td></tr><tr><td>서울 중구 을지로 120</td><td>2층</td><td>203호</td><td style="color:#898781;font-size:11px;">중구을지로120|2|203</td><td class="status-vacant">공실추정</td></tr><tr><td>서울 마포구 어울마당로 65</td><td>1층</td><td>B동 1호</td><td style="color:#898781;font-size:11px;">마포구어울마당로65|1|B동1</td><td class="status-matched">매칭(영업중)</td></tr></tbody>
     </table>
   </div>
   <div class="chart-box">
     <div class="chart-title">상가정보 (영업중 목록)</div>
     <table>
       <thead><tr><th>주소</th><th>층</th><th>호</th><th>사업자</th></tr></thead>
-      <tbody id="bizBody"></tbody>
+      <tbody><tr><td>종로구 종로3가 15-2</td><td>1F</td><td>101</td><td>종로커피</td></tr><tr><td>중구 을지로 120번지</td><td>B1</td><td>101</td><td>을지분식</td></tr><tr><td>마포구 어울마당로 65</td><td>1</td><td>B동1호</td><td>홍대꽃집</td></tr></tbody>
     </table>
   </div>
 </div>
@@ -95,19 +95,5 @@
 집합 차(건축물대장 − 상가정보)를 공실 추정 결과로 산출. 정규화 없이는 표기 차이로 매칭률이 0%에 가까웠으나
 정규화 적용 후 정상 매칭됨을 확인. 실제 서비스에서는 이 로직에 건축HUB API·상가정보 API의 실데이터를 연결한다.
 </div>
-
-<script>
-const rows = [{"addr": "서울특별시 종로구 종로3가 15-2번지", "floor": "1층", "unit": "101호", "key": "종로구종로3가152|1|101", "status": "매칭(영업중)"}, {"addr": "서울특별시 종로구 종로3가 15-2번지", "floor": "1층", "unit": "102호", "key": "종로구종로3가152|1|102", "status": "공실추정"}, {"addr": "서울특별시 종로구 종로3가 15-2번지", "floor": "2층", "unit": "201호", "key": "종로구종로3가152|2|201", "status": "공실추정"}, {"addr": "서울 중구 을지로 120", "floor": "지하1층", "unit": "B101호", "key": "중구을지로120|B1|101", "status": "매칭(영업중)"}, {"addr": "서울 중구 을지로 120", "floor": "2층", "unit": "203호", "key": "중구을지로120|2|203", "status": "공실추정"}, {"addr": "서울 마포구 어울마당로 65", "floor": "1층", "unit": "B동 1호", "key": "마포구어울마당로65|1|B동1", "status": "매칭(영업중)"}];
-const bizRows = [{"addr": "종로구 종로3가 15-2", "floor": "1F", "unit": "101", "name": "종로커피"}, {"addr": "중구 을지로 120번지", "floor": "B1", "unit": "101", "name": "을지분식"}, {"addr": "마포구 어울마당로 65", "floor": "1", "unit": "B동1호", "name": "홍대꽃집"}];
-const rb = document.getElementById('rowsBody');
-rows.forEach(r => {
-  const cls = r.status === '공실추정' ? 'status-vacant' : 'status-matched';
-  rb.innerHTML += `<tr><td>${r.addr}</td><td>${r.floor}</td><td>${r.unit}</td><td style="color:#898781;font-size:11px;">${r.key}</td><td class="${cls}">${r.status}</td></tr>`;
-});
-const bb = document.getElementById('bizBody');
-bizRows.forEach(r => {
-  bb.innerHTML += `<tr><td>${r.addr}</td><td>${r.floor}</td><td>${r.unit}</td><td>${r.name}</td></tr>`;
-});
-</script>
 </body>
 </html>

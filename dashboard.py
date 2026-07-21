@@ -124,7 +124,7 @@ def analyze():
     }
 
 
-# HTML (analyze() 결과로 빈집살이_대시보드.html 뽑음)
+# HTML (analyze() 결과로 역산공실탐지기반_대시보드.html 뽑음)
 import json
 
 def generate(data: dict) -> str:
@@ -151,7 +151,7 @@ def generate(data: dict) -> str:
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>빈집살이 — 공공데이터 기반 상가 공실 현황 대시보드</title>
+<title>역산공실탐지기반 — 공공데이터 기반 상가 공실 현황 대시보드</title>
 <style>
   * {{ box-sizing: border-box; margin: 0; padding: 0; }}
   body {{ font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f8f8f7; color: #0b0b0b; padding: 2rem; }}
@@ -181,7 +181,7 @@ def generate(data: dict) -> str:
 </style>
 </head>
 <body>
-<h1>빈집살이 — 공공데이터 기반 상가 공실 현황 및 청년 창업 문제</h1>
+<h1>역산공실탐지기반 — 공공데이터 기반 상가 공실 현황 및 청년 창업 문제</h1>
 <div class="kpi-grid">
   <div class="kpi-card">
     <div class="kpi-label">전국 중대형 상가 공실률</div>
@@ -309,7 +309,7 @@ if __name__ == '__main__':
     print('HTML 생성 중...')
     html = generate(data)
 
-    output_path = os.path.join(BASE_DIR, "html", '빈집살이_대시보드.html')
+    output_path = os.path.join(BASE_DIR, "html", '역산공실탐지기반_대시보드.html')
     with open(output_path, 'w', encoding='utf-8') as f:
         f.write(html)
     print(f"생성 완료: {output_path}")

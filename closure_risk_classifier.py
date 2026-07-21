@@ -2,7 +2,7 @@
 상권x업종 폐업위험 조기경보 모델
 서울시 우리마을가게 상권분석서비스 CSV 5개(2021~2025) 읽어서 Random Forest로
 다음 분기에 폐업위험이 통계적으로 유의하게 늘어날 상권x업종 예측함.
-결과물은 빈집살이_폐업예측모델_수정본.html
+결과물은 역산공실탐지기반_폐업예측모델_수정본.html
 
 라벨 정하는 방식 계속 바꿔가면서 시행착오 좀 있었음..
 
@@ -221,9 +221,9 @@ def write_html(r):
         induty_json=json.dumps(r['by_induty'], ensure_ascii=False),
         top10_json=json.dumps(r['top10'], ensure_ascii=False),
     )
-    with open(os.path.join(HTML_DIR, "빈집살이_폐업예측모델_수정본.html"), "w", encoding="utf-8") as f:
+    with open(os.path.join(HTML_DIR, "역산공실탐지기반_폐업예측모델_수정본.html"), "w", encoding="utf-8") as f:
         f.write(html)
-    print(f"생성 완료: {os.path.join(HTML_DIR, '빈집살이_폐업예측모델_수정본.html')}")
+    print(f"생성 완료: {os.path.join(HTML_DIR, '역산공실탐지기반_폐업예측모델_수정본.html')}")
 
 
 HTML_TEMPLATE = """<!DOCTYPE html>
@@ -231,7 +231,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>빈집살이 — 상권 폐업위험 조기경보 모델</title>
+<title>역산공실탐지기반 — 상권 폐업위험 조기경보 모델</title>
 <style>
   * {{ box-sizing: border-box; margin: 0; padding: 0; }}
   body {{ font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f8f8f7; color: #0b0b0b; padding: 2rem; }}
@@ -261,7 +261,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
 </style>
 </head>
 <body>
-<h1>빈집살이 — 상권×업종 폐업위험 조기경보 모델</h1>
+<h1>역산공실탐지기반 — 상권×업종 폐업위험 조기경보 모델</h1>
 <div class="subtitle">Random Forest Classifier | 라벨: 두 비율 z-검정(z≥{z_threshold})으로 판정한 "다음 분기 폐업률의 통계적으로 유의한 증가" 여부 | 데이터: 서울시 우리마을가게 상권분석서비스(2021~2025, 20개 분기)</div>
 
 <div class="scope">

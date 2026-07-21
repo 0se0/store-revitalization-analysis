@@ -1,7 +1,7 @@
 """
 지역별 공실 위험도 K-Means 클러스터링 (변수 6개)
 입력: 중대형/소규모/오피스 공실률 + 임대료 (2026 1분기, 17개 시도)
-출력: 빈집살이_클러스터링.html
+출력: 역산공실탐지기반_클러스터링.html
 
 pandas/sklearn이 여기 numpy 2.x랑 안 맞아서 임포트가 계속 깨짐.
 그래서 그냥 csv 표준라이브러리 + numpy만으로 읽기/정규화/K-Means 직접 구현함
@@ -165,7 +165,7 @@ def write_html(data_out, counts):
         high_count=counts[0], mid_count=counts[1], low_count=counts[2],
         high_regions="·".join(high), mid_regions="·".join(mid), low_regions="·".join(low),
     )
-    out_path = os.path.join(HTML_DIR, "빈집살이_클러스터링.html")
+    out_path = os.path.join(HTML_DIR, "역산공실탐지기반_클러스터링.html")
     with open(out_path, "w", encoding="utf-8") as f:
         f.write(html)
     print(f"생성 완료: {out_path}")
@@ -176,7 +176,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>빈집살이 — 지역별 공실 위험도 클러스터링 분석</title>
+<title>역산공실탐지기반 — 지역별 공실 위험도 클러스터링 분석</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
 <style>
@@ -211,7 +211,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
 </style>
 </head>
 <body>
-<h1>빈집살이 — 지역별 공실 위험도 클러스터링 분석</h1>
+<h1>역산공실탐지기반 — 지역별 공실 위험도 클러스터링 분석</h1>
 <div class="subtitle">K-Means 클러스터링 (k=3, 6개 변수) | 입력 변수: 중대형·소규모·오피스 공실률, 중대형·소규모·오피스 임대료 (2026년 1분기) | 출처: 한국부동산원 상업용부동산 임대동향조사</div>
 
 <div class="layout">
@@ -229,11 +229,11 @@ HTML_TEMPLATE = """<!DOCTYPE html>
 </div>
 
 <div class="insight-box">
-  <div class="insight-title">📌 클러스터 분석 인사이트 — 빈집살이 서비스 전략</div>
+  <div class="insight-title">📌 클러스터 분석 인사이트 — 진단모델 활용 전략</div>
   <div class="insight-grid">
     <div class="insight-card" style="border-color:#e34948;">
       <div class="insight-label" style="color:#e34948;">🔴 고위험군 우선 타깃 ({high_count}개 시도)</div>
-      <div class="insight-body">{high_regions} 등 상가·오피스 공실률이 함께 높고 임대료는 정체된 지역이다. 방치 공실이 집중되어 빈집살이 매칭 수요가 가장 높으며, 지자체 협력 창업 지원 프로그램과 연계 시 즉각적인 효과가 기대된다.</div>
+      <div class="insight-body">{high_regions} 등 상가·오피스 공실률이 함께 높고 임대료는 정체된 지역이다. 방치 공실이 집중되어 매칭 수요가 가장 높으며, 지자체 협력 창업 지원 프로그램과 연계 시 즉각적인 효과가 기대된다.</div>
     </div>
     <div class="insight-card" style="border-color:#f59e0b;">
       <div class="insight-label" style="color:#d97706;">🟡 중위험군 성장 거점 ({mid_count}개 시도)</div>
