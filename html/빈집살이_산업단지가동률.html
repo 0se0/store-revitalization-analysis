@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>빈집살이 — 노후산업단지 가동률 분석 (확장 근거)</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f8f8f7; color: #0b0b0b; padding: 2rem; }
+  h1 { font-size: 18px; font-weight: 500; margin-bottom: 4px; }
+  .subtitle { font-size: 12px; color: #898781; margin-bottom: 1.5rem; }
+  .caveat { background: #eff6ff; border-left: 3px solid #2a78d6; padding: 0.875rem 1.1rem; font-size: 12px; color: #52514e; margin-bottom: 1.5rem; line-height: 1.7; }
+  .kpi-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 1.5rem; }
+  .kpi-card { background: #f1f0eb; border-radius: 8px; padding: 1rem; text-align: center; }
+  .kpi-label { font-size: 12px; color: #898781; margin-bottom: 6px; }
+  .kpi-value { font-size: 26px; font-weight: 600; }
+  .kpi-sub { font-size: 11px; color: #898781; margin-top: 4px; }
+  .highlight-box { background: #fef2f2; border: 1px solid #f3c9c8; border-radius: 10px; padding: 1.25rem; margin-bottom: 1.5rem; }
+  .highlight-title { font-size: 13px; font-weight: 600; color: #e34948; margin-bottom: 8px; }
+  .highlight-body { font-size: 13px; color: #52514e; line-height: 1.7; }
+  .chart-box { background: #fff; border-radius: 12px; border: 0.5px solid rgba(11,11,11,0.1); padding: 1.25rem; margin-bottom: 1.5rem; }
+  .chart-title { font-size: 13px; font-weight: 500; color: #52514e; margin-bottom: 12px; }
+  .chart-wrap { position: relative; height: 340px; }
+  table { width: 100%; border-collapse: collapse; font-size: 12px; }
+  th { text-align: left; color: #898781; font-weight: 500; padding: 6px 8px; border-bottom: 1px solid #e8e7e2; }
+  td { padding: 8px; border-bottom: 1px solid #f1f0eb; }
+  .note { font-size: 11px; color: #898781; margin-top: 1.5rem; line-height: 1.6; }
+</style>
+</head>
+<body>
+<h1>빈집살이 — 노후산업단지 가동률 분석 (확장 근거)</h1>
+<div class="subtitle">한국산업단지공단 전국산업단지현황통계·노후산업단지 (2025.09.30 기준, 전국 513곳)</div>
+
+<div class="caveat">
+📍 <b>이 분석의 목적:</b> 본 프로젝트가 상업시설(세운상가·낙원상가 등)에서 발견한 "등록정보-실제운영 불일치"
+패턴이 산업단지 영역에서도 나타나는지 확인한다. "입주업체(공식 등록)"와 "가동업체(실제 가동)"의 비율(가동률)이
+낮을수록 관리 사각지대일 가능성이 크다. 2026.3.20 대전 안전공업 화재(사망 14명)가 발생한 대덕구 문평동
+일원은 실제로 "대전산업단지[재생사업지구]"에 해당하며, 이 단지의 가동률을 전국과 비교한다.
+</div>
+
+<div class="highlight-box">
+  <div class="highlight-title">🔍 하이라이트 — 대전 대덕구 대전산업단지[재생사업지구]</div>
+  <div class="highlight-body">
+    입주업체 <b>1,083개</b> 중 실제 가동업체는 <b>886개</b>뿐이며,
+    <b>197개(18.2%)</b>는 등록만 되어 있을 뿐 실제로는 가동하지 않는다.
+    가동률 <b>81.8%</b>는 전국 평균(92.6%)보다 뚜렷이 낮으며,
+    전국 513곳 중 가동률이 낮은 순으로 <b>72위</b>다(하위 14.0%).
+    이 단지는 이미 정부에 의해 <b>"재생사업지구"</b>로 지정되어 노후·쇠퇴가 공식 인정된 곳이다.
+  </div>
+</div>
+
+<div class="kpi-grid">
+  <div class="kpi-card">
+    <div class="kpi-label">전국 노후산업단지 평균 가동률</div>
+    <div class="kpi-value" style="color:#52514e;">92.6%</div>
+    <div class="kpi-sub">중앙값 100.0%</div>
+  </div>
+  <div class="kpi-card">
+    <div class="kpi-label">대전산업단지 가동률</div>
+    <div class="kpi-value" style="color:#e34948;">81.8%</div>
+    <div class="kpi-sub">평균 대비 -10.8%p</div>
+  </div>
+  <div class="kpi-card">
+    <div class="kpi-label">전국 순위 (낮은 순)</div>
+    <div class="kpi-value" style="color:#e34948;">72위</div>
+    <div class="kpi-sub">전체 513곳 중</div>
+  </div>
+</div>
+
+<div class="chart-box">
+  <div class="chart-title">가동률 최하위 10곳 + 대전산업단지 비교</div>
+  <div class="chart-wrap"><canvas id="barChart"></canvas></div>
+</div>
+
+<div class="chart-box">
+  <div class="chart-title">가동률 최하위 10곳 상세</div>
+  <table>
+    <thead><tr><th>단지명</th><th>입주업체</th><th>가동업체</th><th>가동률</th></tr></thead>
+    <tbody><tr>
+            <td>전북 남원시 어현</td>
+            <td>1</td>
+            <td>0</td>
+            <td>0.0%</td>
+        </tr><tr>
+            <td>충남 홍성군 은하</td>
+            <td>3</td>
+            <td>0</td>
+            <td>0.0%</td>
+        </tr><tr>
+            <td>전남 나주시 봉황</td>
+            <td>20</td>
+            <td>9</td>
+            <td>45.0%</td>
+        </tr><tr>
+            <td>충남 천안시 목천</td>
+            <td>2</td>
+            <td>1</td>
+            <td>50.0%</td>
+        </tr><tr>
+            <td>충남 아산시 신인</td>
+            <td>2</td>
+            <td>1</td>
+            <td>50.0%</td>
+        </tr><tr>
+            <td>전북 장수군 장계</td>
+            <td>10</td>
+            <td>5</td>
+            <td>50.0%</td>
+        </tr><tr>
+            <td>경남 합천군 적중</td>
+            <td>6</td>
+            <td>3</td>
+            <td>50.0%</td>
+        </tr><tr>
+            <td>충북 단양군 적성</td>
+            <td>17</td>
+            <td>9</td>
+            <td>52.9%</td>
+        </tr><tr>
+            <td>전남 곡성군 석곡</td>
+            <td>13</td>
+            <td>7</td>
+            <td>53.8%</td>
+        </tr><tr>
+            <td>경남 고성군 회화</td>
+            <td>9</td>
+            <td>5</td>
+            <td>55.6%</td>
+        </tr></tbody>
+  </table>
+</div>
+
+<div class="note">
+※ 가동률 = 가동업체(개) / 입주업체(개) × 100. 대전산업단지는 최하위 10곳에는 포함되지 않으나(최하위권은
+소규모 단지 위주), 대규모 단지(입주업체 1,083개) 중에서는 관리 사각지대 규모(미가동 197개)가 절대적으로
+크다는 점에서 의미가 있다. 데이터: 한국산업단지공단, 전국산업단지현황통계·노후산업단지(2025.09.30 기준).
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>
+new Chart(document.getElementById('barChart'), {
+  type: 'bar',
+  data: {
+    labels: ["전북 남원시 어현", "충남 홍성군 은하", "전남 나주시 봉황", "충남 천안시 목천", "충남 아산시 신인", "전북 장수군 장계", "경남 합천군 적중", "충북 단양군 적성", "전남 곡성군 석곡", "경남 고성군 회화", "대전 대덕구 대전산업단지[재생사업지구] (하이라이트)"],
+    datasets: [{ data: [0.0, 0.0, 45.0, 50.0, 50.0, 50.0, 50.0, 52.9, 53.8, 55.6, 81.8], backgroundColor: ["#898781", "#898781", "#898781", "#898781", "#898781", "#898781", "#898781", "#898781", "#898781", "#898781", "#e34948"], borderRadius: 3 }]
+  },
+  options: {
+    indexAxis: 'y',
+    responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => ctx.parsed.x + '%' } } },
+    scales: {
+      x: { grid: { color: '#e1e0d9' }, min: 0, max: 100, ticks: { callback: v => v + '%' } },
+      y: { grid: { display: false }, ticks: { font: { size: 10 } } }
+    }
+  }
+});
+</script>
+</body>
+</html>

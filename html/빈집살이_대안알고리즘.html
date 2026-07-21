@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>빈집살이 — 대안 알고리즘: 노후 대형상가 점포수 시계열 공실위험 지표</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f8f8f7; color: #0b0b0b; padding: 2rem; }
+  h1 { font-size: 18px; font-weight: 500; margin-bottom: 4px; }
+  .subtitle { font-size: 12px; color: #898781; margin-bottom: 1.5rem; }
+  .caveat { background: #eff6ff; border-left: 3px solid #2a78d6; padding: 0.875rem 1.1rem; font-size: 12px; color: #52514e; margin-bottom: 1.5rem; line-height: 1.7; }
+  .kpi-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 1.5rem; }
+  .kpi-card { background: #f1f0eb; border-radius: 8px; padding: 1rem; text-align: center; }
+  .kpi-label { font-size: 12px; color: #898781; margin-bottom: 6px; }
+  .kpi-value { font-size: 24px; font-weight: 500; }
+  .kpi-sub { font-size: 11px; color: #898781; margin-top: 4px; }
+  .red { color: #e34948; } .gray { color: #52514e; }
+  .chart-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 1.5rem; }
+  .chart-box { background: #fff; border-radius: 12px; border: 0.5px solid rgba(11,11,11,0.1); padding: 1.25rem; }
+  .chart-title { font-size: 13px; font-weight: 500; color: #52514e; margin-bottom: 12px; }
+  .chart-wrap { position: relative; height: 300px; }
+  table { width: 100%; border-collapse: collapse; font-size: 12px; }
+  th { text-align: left; color: #898781; font-weight: 500; padding: 6px 8px; border-bottom: 1px solid #e8e7e2; }
+  td { padding: 6px 8px; border-bottom: 1px solid #f1f0eb; }
+  .risk-high { color: #e34948; font-weight: 600; }
+  .risk-mid { color: #d97706; font-weight: 600; }
+  .risk-low { color: #2a78d6; font-weight: 600; }
+  .note { font-size: 11px; color: #898781; margin-top: 1.5rem; line-height: 1.6; }
+</style>
+</head>
+<body>
+<h1>빈집살이 — 대안 알고리즘: 노후 대형상가 점포수 시계열 공실위험 지표</h1>
+<div class="subtitle">서울시 우리마을가게 상권분석서비스(2021~2025, 20개 분기) | 노후 대형 복합상가 48곳 실측 분석</div>
+
+<div class="caveat">
+📍 <b>이 지표의 배경:</b> 실제 공공 API(소상공인 상가정보 + 국토교통부 건축HUB 건축물대장)로 253개
+상업건물을 검증한 결과(붙임: verification_scan.py, 빈집살이_실측검증요약.html), 세운상가·낙원상가·강변테크노마트 등 대형 상업건물 대부분에서 "등록된 전유부(법적
+구분소유 단위) 수"와 "실제 영업 중인 사업체 수"가 근본적으로 불일치함을 확인했다(예: 강변테크노마트 영업중
+500개 vs 등록 전유부 1건). 개별 호실 단위 매칭이 구조적으로 어려운 이 건물 유형에는, 상가정보 API 자체의
+시계열 점포수 변화를 공실 위험의 대체 지표로 사용한다.
+</div>
+
+<div class="kpi-grid">
+  <div class="kpi-card">
+    <div class="kpi-label">분석 대상 노후 대형상가</div>
+    <div class="kpi-value gray">48곳</div>
+    <div class="kpi-sub">세운상가·낙원상가·동대문상가 등</div>
+  </div>
+  <div class="kpi-card">
+    <div class="kpi-label">고위험(점포수 -7% 이상 감소)</div>
+    <div class="kpi-value red">20곳</div>
+    <div class="kpi-sub">전체의 42%</div>
+  </div>
+  <div class="kpi-card">
+    <div class="kpi-label">평균 점포수 순증감</div>
+    <div class="kpi-value red">-3.4%</div>
+    <div class="kpi-sub">2021년 1분기 대비 2025년 4분기</div>
+  </div>
+</div>
+
+<div class="chart-grid">
+  <div class="chart-box">
+    <div class="chart-title">상권별 점포수 순증감률 (2021~2025)</div>
+    <div class="chart-wrap"><canvas id="barChart"></canvas></div>
+  </div>
+  <div class="chart-box">
+    <div class="chart-title">위험도 상위 4개 상권 — 분기별 점포수 추이</div>
+    <div class="chart-wrap"><canvas id="lineChart"></canvas></div>
+  </div>
+</div>
+
+<div class="chart-box">
+  <div class="chart-title">전체 상세 — 노후 대형상가 공실위험 지표</div>
+  <table>
+    <thead><tr><th>상권명</th><th>점포수 순증감률</th><th>최근 점포수</th><th>최근4분기 평균폐업률</th><th>위험도</th></tr></thead>
+    <tbody><tr>
+            <td>신림종합시장</td>
+            <td class="risk-high">-45.0%</td>
+            <td>11</td>
+            <td>0.0%</td>
+            <td class="risk-high">고위험</td>
+        </tr><tr>
+            <td>동대문상가C동</td>
+            <td class="risk-high">-29.6%</td>
+            <td>164</td>
+            <td>3.6%</td>
+            <td class="risk-high">고위험</td>
+        </tr><tr>
+            <td>청계천공구상가</td>
+            <td class="risk-high">-21.2%</td>
+            <td>89</td>
+            <td>3.5%</td>
+            <td class="risk-high">고위험</td>
+        </tr><tr>
+            <td>테크노상가(엘리시움)</td>
+            <td class="risk-high">-20.6%</td>
+            <td>849</td>
+            <td>2.1%</td>
+            <td class="risk-high">고위험</td>
+        </tr><tr>
+            <td>평화시장(남평화시장, 제일평화시장, 신평화패션타운)</td>
+            <td class="risk-high">-18.9%</td>
+            <td>2,576</td>
+            <td>2.4%</td>
+            <td class="risk-high">고위험</td>
+        </tr><tr>
+            <td>화곡중앙시장</td>
+            <td class="risk-high">-15.6%</td>
+            <td>119</td>
+            <td>5.1%</td>
+            <td class="risk-high">고위험</td>
+        </tr><tr>
+            <td>동대문패션타운 관광특구</td>
+            <td class="risk-high">-15.4%</td>
+            <td>12,590</td>
+            <td>2.3%</td>
+            <td class="risk-high">고위험</td>
+        </tr><tr>
+            <td>동대문상가D동</td>
+            <td class="risk-high">-15.2%</td>
+            <td>56</td>
+            <td>2.2%</td>
+            <td class="risk-high">고위험</td>
+        </tr><tr>
+            <td>동대문상가A동</td>
+            <td class="risk-high">-14.9%</td>
+            <td>80</td>
+            <td>2.5%</td>
+            <td class="risk-high">고위험</td>
+        </tr><tr>
+            <td>청평화시장</td>
+            <td class="risk-high">-14.1%</td>
+            <td>2,483</td>
+            <td>2.4%</td>
+            <td class="risk-high">고위험</td>
+        </tr><tr>
+            <td>동평화시장</td>
+            <td class="risk-high">-14.0%</td>
+            <td>748</td>
+            <td>2.3%</td>
+            <td class="risk-high">고위험</td>
+        </tr><tr>
+            <td>용산전자상가(용산역)</td>
+            <td class="risk-high">-13.1%</td>
+            <td>2,580</td>
+            <td>1.6%</td>
+            <td class="risk-high">고위험</td>
+        </tr><tr>
+            <td>동대문상가B동</td>
+            <td class="risk-high">-13.0%</td>
+            <td>87</td>
+            <td>0.6%</td>
+            <td class="risk-high">고위험</td>
+        </tr><tr>
+            <td>영등포전통시장</td>
+            <td class="risk-high">-12.8%</td>
+            <td>171</td>
+            <td>2.1%</td>
+            <td class="risk-high">고위험</td>
+        </tr><tr>
+            <td>중랑동부시장(중랑교종합상가)</td>
+            <td class="risk-high">-12.5%</td>
+            <td>42</td>
+            <td>6.7%</td>
+            <td class="risk-high">고위험</td>
+        </tr><tr>
+            <td>광장시장(광장전통시장)</td>
+            <td class="risk-high">-10.5%</td>
+            <td>580</td>
+            <td>2.0%</td>
+            <td class="risk-high">고위험</td>
+        </tr><tr>
+            <td>삼익패션타운(남대문시장)</td>
+            <td class="risk-high">-9.8%</td>
+            <td>586</td>
+            <td>1.4%</td>
+            <td class="risk-high">고위험</td>
+        </tr><tr>
+            <td>세운상가가동</td>
+            <td class="risk-high">-9.2%</td>
+            <td>267</td>
+            <td>1.3%</td>
+            <td class="risk-high">고위험</td>
+        </tr><tr>
+            <td>남대문시장(자유상가)</td>
+            <td class="risk-high">-8.3%</td>
+            <td>2,406</td>
+            <td>1.6%</td>
+            <td class="risk-high">고위험</td>
+        </tr><tr>
+            <td>청량리전통시장</td>
+            <td class="risk-high">-7.1%</td>
+            <td>183</td>
+            <td>3.2%</td>
+            <td class="risk-high">고위험</td>
+        </tr><tr>
+            <td>중부시장(신중부시장)</td>
+            <td class="risk-mid">-6.1%</td>
+            <td>650</td>
+            <td>1.4%</td>
+            <td class="risk-mid">중위험</td>
+        </tr><tr>
+            <td>영등포유통상가</td>
+            <td class="risk-mid">-5.5%</td>
+            <td>257</td>
+            <td>1.7%</td>
+            <td class="risk-mid">중위험</td>
+        </tr><tr>
+            <td>길음시장</td>
+            <td class="risk-mid">-5.4%</td>
+            <td>70</td>
+            <td>0.7%</td>
+            <td class="risk-mid">중위험</td>
+        </tr><tr>
+            <td>가락시장</td>
+            <td class="risk-mid">-5.1%</td>
+            <td>2,918</td>
+            <td>0.8%</td>
+            <td class="risk-mid">중위험</td>
+        </tr><tr>
+            <td>숭례문수입상가(남대문시장)</td>
+            <td class="risk-mid">-5.1%</td>
+            <td>167</td>
+            <td>0.9%</td>
+            <td class="risk-mid">중위험</td>
+        </tr><tr>
+            <td>성동용답상가시장</td>
+            <td class="risk-mid">-5.0%</td>
+            <td>302</td>
+            <td>2.6%</td>
+            <td class="risk-mid">중위험</td>
+        </tr><tr>
+            <td>황학동벼룩시장</td>
+            <td class="risk-low">-2.1%</td>
+            <td>93</td>
+            <td>1.3%</td>
+            <td class="risk-low">저위험</td>
+        </tr><tr>
+            <td>창동신창시장</td>
+            <td class="risk-low">-1.8%</td>
+            <td>213</td>
+            <td>2.9%</td>
+            <td class="risk-low">저위험</td>
+        </tr><tr>
+            <td>낙원시장(낙원지하시장(대일상가))</td>
+            <td class="risk-low">-1.7%</td>
+            <td>230</td>
+            <td>0.3%</td>
+            <td class="risk-low">저위험</td>
+        </tr><tr>
+            <td>동대문종합시장(동대문종합시장 신관, 동대문종합시장D동상가)</td>
+            <td class="risk-low">+0.3%</td>
+            <td>319</td>
+            <td>1.8%</td>
+            <td class="risk-low">저위험</td>
+        </tr><tr>
+            <td>남성사계시장(남성시장)</td>
+            <td class="risk-low">+1.9%</td>
+            <td>323</td>
+            <td>2.9%</td>
+            <td class="risk-low">저위험</td>
+        </tr><tr>
+            <td>방산종합시장(방산시장)</td>
+            <td class="risk-low">+2.6%</td>
+            <td>432</td>
+            <td>1.8%</td>
+            <td class="risk-low">저위험</td>
+        </tr><tr>
+            <td>신림중앙시장(조원동 펭귄시장)</td>
+            <td class="risk-low">+2.8%</td>
+            <td>37</td>
+            <td>2.0%</td>
+            <td class="risk-low">저위험</td>
+        </tr><tr>
+            <td>영등포시장기계공구상가</td>
+            <td class="risk-low">+2.8%</td>
+            <td>73</td>
+            <td>2.4%</td>
+            <td class="risk-low">저위험</td>
+        </tr><tr>
+            <td>정릉시장</td>
+            <td class="risk-low">+2.9%</td>
+            <td>212</td>
+            <td>3.2%</td>
+            <td class="risk-low">저위험</td>
+        </tr><tr>
+            <td>수유전통시장(수유시장, 수유골목시장)</td>
+            <td class="risk-low">+3.1%</td>
+            <td>270</td>
+            <td>2.0%</td>
+            <td class="risk-low">저위험</td>
+        </tr><tr>
+            <td>쌍문시장(쌍문역골목시장)</td>
+            <td class="risk-low">+3.7%</td>
+            <td>338</td>
+            <td>3.0%</td>
+            <td class="risk-low">저위험</td>
+        </tr><tr>
+            <td>상계중앙시장</td>
+            <td class="risk-low">+4.1%</td>
+            <td>203</td>
+            <td>3.4%</td>
+            <td class="risk-low">저위험</td>
+        </tr><tr>
+            <td>청량리종합시장</td>
+            <td class="risk-low">+4.6%</td>
+            <td>182</td>
+            <td>1.4%</td>
+            <td class="risk-low">저위험</td>
+        </tr><tr>
+            <td>경동시장</td>
+            <td class="risk-low">+4.8%</td>
+            <td>391</td>
+            <td>2.1%</td>
+            <td class="risk-low">저위험</td>
+        </tr><tr>
+            <td>답십리 건축자재시장</td>
+            <td class="risk-low">+5.2%</td>
+            <td>61</td>
+            <td>2.4%</td>
+            <td class="risk-low">저위험</td>
+        </tr><tr>
+            <td>봉천중앙시장</td>
+            <td class="risk-low">+6.0%</td>
+            <td>53</td>
+            <td>2.8%</td>
+            <td class="risk-low">저위험</td>
+        </tr><tr>
+            <td>자양골목전통시장(자양골목시장)</td>
+            <td class="risk-low">+10.5%</td>
+            <td>158</td>
+            <td>2.1%</td>
+            <td class="risk-low">저위험</td>
+        </tr><tr>
+            <td>노량진중앙시장</td>
+            <td class="risk-low">+12.2%</td>
+            <td>55</td>
+            <td>6.6%</td>
+            <td class="risk-low">저위험</td>
+        </tr><tr>
+            <td>사당시장</td>
+            <td class="risk-low">+14.3%</td>
+            <td>24</td>
+            <td>3.2%</td>
+            <td class="risk-low">저위험</td>
+        </tr><tr>
+            <td>통인시장</td>
+            <td class="risk-low">+15.7%</td>
+            <td>184</td>
+            <td>1.8%</td>
+            <td class="risk-low">저위험</td>
+        </tr><tr>
+            <td>동묘시장(동묘벼룩시장)</td>
+            <td class="risk-low">+16.4%</td>
+            <td>142</td>
+            <td>2.3%</td>
+            <td class="risk-low">저위험</td>
+        </tr><tr>
+            <td>신설종합시장</td>
+            <td class="risk-low">+80.0%</td>
+            <td>9</td>
+            <td>2.8%</td>
+            <td class="risk-low">저위험</td>
+        </tr></tbody>
+  </table>
+</div>
+
+<div class="note">
+※ 방법론: 각 상권의 분기별 총점포수(모든 업종 합산) 추이를 2021년 1분기 대비 2025년 4분기로 비교해
+순증감률을 계산. -7% 이상 감소는 고위험, -3~-7%는 중위험, 그 외 저위험으로 분류(임계값은 노후 대형상가
+48곳 표본의 분포에 기반한 기준이며 향후 더 많은 상권으로 검증 시 조정 가능). 최근4분기 평균폐업률은 직전
+4개 분기의 (폐업점포수/총점포수) 평균. 데이터: 서울시 우리마을가게 상권분석서비스(상권-점포), data.seoul.go.kr.
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>
+const barLabels = ["신림종합시장", "동대문상가C동", "청계천공구상가", "테크노상가(엘리시움)", "평화시장(남평화시장, 제일평화시장, 신평화패션타운)", "화곡중앙시장", "동대문패션타운 관광특구", "동대문상가D동", "동대문상가A동", "청평화시장", "동평화시장", "용산전자상가(용산역)", "동대문상가B동", "영등포전통시장", "중랑동부시장(중랑교종합상가)", "광장시장(광장전통시장)", "삼익패션타운(남대문시장)", "세운상가가동", "남대문시장(자유상가)", "청량리전통시장", "중부시장(신중부시장)", "영등포유통상가", "길음시장", "가락시장", "숭례문수입상가(남대문시장)", "성동용답상가시장", "황학동벼룩시장", "창동신창시장", "낙원시장(낙원지하시장(대일상가))", "동대문종합시장(동대문종합시장 신관, 동대문종합시장D동상가)", "남성사계시장(남성시장)", "방산종합시장(방산시장)", "신림중앙시장(조원동 펭귄시장)", "영등포시장기계공구상가", "정릉시장", "수유전통시장(수유시장, 수유골목시장)", "쌍문시장(쌍문역골목시장)", "상계중앙시장", "청량리종합시장", "경동시장", "답십리 건축자재시장", "봉천중앙시장", "자양골목전통시장(자양골목시장)", "노량진중앙시장", "사당시장", "통인시장", "동묘시장(동묘벼룩시장)", "신설종합시장"];
+const barValues = [-45.0, -29.6, -21.2, -20.6, -18.9, -15.6, -15.4, -15.2, -14.9, -14.1, -14.0, -13.1, -13.0, -12.8, -12.5, -10.5, -9.8, -9.2, -8.3, -7.1, -6.1, -5.5, -5.4, -5.1, -5.1, -5.0, -2.1, -1.8, -1.7, 0.3, 1.9, 2.6, 2.8, 2.8, 2.9, 3.1, 3.7, 4.1, 4.6, 4.8, 5.2, 6.0, 10.5, 12.2, 14.3, 15.7, 16.4, 80.0];
+const barColors = ["#e34948", "#e34948", "#e34948", "#e34948", "#e34948", "#e34948", "#e34948", "#e34948", "#e34948", "#e34948", "#e34948", "#e34948", "#e34948", "#e34948", "#e34948", "#e34948", "#e34948", "#e34948", "#e34948", "#e34948", "#2a78d6", "#2a78d6", "#2a78d6", "#2a78d6", "#2a78d6", "#2a78d6", "#2a78d6", "#2a78d6", "#2a78d6", "#2a78d6", "#2a78d6", "#2a78d6", "#2a78d6", "#2a78d6", "#2a78d6", "#2a78d6", "#2a78d6", "#2a78d6", "#2a78d6", "#2a78d6", "#2a78d6", "#2a78d6", "#2a78d6", "#2a78d6", "#2a78d6", "#2a78d6", "#2a78d6", "#2a78d6"];
+
+new Chart(document.getElementById('barChart'), {
+  type: 'bar',
+  data: {
+    labels: barLabels,
+    datasets: [{ data: barValues, backgroundColor: barColors, borderRadius: 3 }]
+  },
+  options: {
+    indexAxis: 'y',
+    responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => ctx.parsed.x.toFixed(1) + '%' } } },
+    scales: {
+      x: { grid: { color: '#e1e0d9' }, ticks: { callback: v => v + '%' } },
+      y: { grid: { display: false }, ticks: { font: { size: 10 } } }
+    }
+  }
+});
+
+const lineDatasets = [{"label": "신림종합시장", "data": [20, 19, 19, 19, 19, 19, 19, 15, 10, 10, 10, 11, 11, 11, 11, 11, 11, 11, 11, 11], "color": "#e34948"}, {"label": "동대문상가C동", "data": [233, 236, 233, 230, 229, 231, 228, 229, 225, 223, 222, 219, 212, 205, 195, 188, 179, 170, 165, 164], "color": "#f59e0b"}, {"label": "청계천공구상가", "data": [113, 111, 115, 114, 111, 111, 110, 105, 101, 102, 102, 101, 101, 102, 100, 99, 99, 96, 91, 89], "color": "#8b5cf6"}, {"label": "테크노상가(엘리시움)", "data": [1069, 1067, 1048, 1052, 1050, 1053, 1027, 1032, 1025, 1024, 1028, 1016, 994, 979, 944, 924, 902, 884, 866, 849], "color": "#2a78d6"}];
+new Chart(document.getElementById('lineChart'), {
+  type: 'line',
+  data: {
+    labels: ["20211", "20212", "20213", "20214", "20221", "20222", "20223", "20224", "20231", "20232", "20233", "20234", "20241", "20242", "20243", "20244", "20251", "20252", "20253", "20254"],
+    datasets: lineDatasets.map(d => ({
+      label: d.label, data: d.data, borderColor: d.color, backgroundColor: 'transparent',
+      borderWidth: 2, pointRadius: 2, tension: 0.2
+    }))
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { display: true, position: 'bottom', labels: { font: { size: 10 } } } },
+    scales: {
+      x: { grid: { color: '#e1e0d9' }, ticks: { font: { size: 9 }, maxRotation: 90 } },
+      y: { grid: { color: '#e1e0d9' } }
+    }
+  }
+});
+</script>
+</body>
+</html>

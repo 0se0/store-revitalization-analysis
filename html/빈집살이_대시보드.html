@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>빈집살이 — 공공데이터 기반 상가 공실 현황 대시보드</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f8f8f7; color: #0b0b0b; padding: 2rem; }
+  h1 { font-size: 18px; font-weight: 500; margin-bottom: 1.5rem; color: #0b0b0b; }
+  .kpi-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; margin-bottom: 2rem; }
+  .kpi-card { background: #f1f0eb; border-radius: 8px; padding: 1rem; text-align: center; }
+  .kpi-label { font-size: 13px; color: #898781; margin-bottom: 6px; }
+  .kpi-value { font-size: 28px; font-weight: 500; }
+  .kpi-sub { font-size: 12px; color: #898781; margin-top: 4px; }
+  .red { color: #e34948; } .gray { color: #888780; } .blue { color: #2a78d6; }
+  .chart-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 2rem; }
+  .chart-box { background: #fff; border-radius: 12px; border: 0.5px solid rgba(11,11,11,0.1); padding: 1.25rem; }
+  .chart-title { font-size: 13px; font-weight: 500; color: #52514e; margin-bottom: 4px; }
+  .legend { display: flex; gap: 12px; margin-bottom: 8px; flex-wrap: wrap; }
+  .legend-item { display: flex; align-items: center; gap: 4px; font-size: 11px; color: #52514e; }
+  .legend-dot { width: 10px; height: 10px; border-radius: 2px; }
+  .chart-wrap { position: relative; height: 280px; }
+  .chart-foot { font-size: 11px; color: #898781; margin-top: 8px; }
+  .problem-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 8px; }
+  .problem-card { background: #f1f0eb; padding: 1rem 1.25rem; border-left: 3px solid #e34948; }
+  .problem-card.blue-border { border-left-color: #2a78d6; }
+  .problem-title { font-size: 13px; font-weight: 500; color: #0b0b0b; margin-bottom: 8px; }
+  .problem-body { font-size: 13px; color: #52514e; line-height: 1.6; }
+  .footnote { font-size: 11px; color: #898781; margin-bottom: 12px; }
+  .solution-bar { background: #eaf3de; border-radius: 8px; padding: 0.875rem 1.25rem; }
+  .solution-text { font-size: 13px; color: #3b6d11; font-weight: 500; }
+</style>
+</head>
+<body>
+<h1>빈집살이 — 공공데이터 기반 상가 공실 현황 및 청년 창업 문제</h1>
+<div class="kpi-grid">
+  <div class="kpi-card">
+    <div class="kpi-label">전국 중대형 상가 공실률</div>
+    <div class="kpi-value red">14.1%</div>
+    <div class="kpi-sub">2026년 1분기 ↑ 24Q3 대비 +1.4%p</div>
+  </div>
+  <div class="kpi-card">
+    <div class="kpi-label">전국 소규모 상가 공실률</div>
+    <div class="kpi-value red">8.3%</div>
+    <div class="kpi-sub">2026년 1분기 ↑ 24Q3 대비 +1.8%p</div>
+  </div>
+  <div class="kpi-card">
+    <div class="kpi-label">중대형 상가 임대료</div>
+    <div class="kpi-value gray">26.6<span style="font-size:16px;">천원/㎡</span></div>
+    <div class="kpi-sub">2026년 1분기 → 24Q3 대비 +0.4%</div>
+  </div>
+  <div class="kpi-card">
+    <div class="kpi-label">소규모 상가 임대료</div>
+    <div class="kpi-value blue">20.6<span style="font-size:16px;">천원/㎡</span></div>
+    <div class="kpi-sub">2026년 1분기 ↓ 24Q3 대비 -0.5%</div>
+  </div>
+  <div class="kpi-card">
+    <div class="kpi-label">청년 창업 5년 내 폐업률</div>
+    <div class="kpi-value red">94%</div>
+    <div class="kpi-sub">NH농협은행 NH트렌드+ (2026)</div>
+  </div>
+</div>
+<div class="chart-grid">
+  <div class="chart-box">
+    <div class="chart-title">지역별 중대형 상가 공실률 (2026년 1분기)</div>
+    <div class="legend">
+      <span class="legend-item"><span class="legend-dot" style="background:#e34948;"></span>전국 평균 이상</span>
+      <span class="legend-item"><span class="legend-dot" style="background:#2a78d6;"></span>전국 평균 이하</span>
+    </div>
+    <div class="chart-wrap">
+      <canvas id="regionChart" role="img" aria-label="지역별 중대형 상가 공실률 내림차순">지역별 공실률 내림차순</canvas>
+    </div>
+    <div class="chart-foot">출처: 한국부동산원 상업용부동산 임대동향조사 (2026년 1분기)</div>
+  </div>
+  <div class="chart-box">
+    <div class="chart-title">공실률 상승 vs 임대료 정체 (전국, 분기별)</div>
+    <div class="legend">
+      <span class="legend-item"><span class="legend-dot" style="background:#e34948;"></span>중대형 공실률(%)</span>
+      <span class="legend-item"><span class="legend-dot" style="background:#f59e0b;"></span>소규모 공실률(%)</span>
+      <span class="legend-item"><span class="legend-dot" style="background:#888780;"></span>중대형 임대료(천원/㎡)</span>
+      <span class="legend-item"><span class="legend-dot" style="background:#2a78d6;"></span>소규모 임대료(천원/㎡)</span>
+    </div>
+    <div class="chart-wrap">
+      <canvas id="trendChart" role="img" aria-label="공실률 상승 vs 임대료 정체 추이">공실 상승 vs 임대료 정체</canvas>
+    </div>
+    <div class="chart-foot">출처: 한국부동산원 상업용부동산 임대동향조사 (2024년 3분기~2026년 1분기 실제 공표 수치)</div>
+  </div>
+</div>
+<div class="problem-grid">
+  <div class="problem-card">
+    <div class="problem-title">🏪 건물주 문제</div>
+    <div class="problem-body">공실은 늘어나는데 임대료는 올리지 못하는 이중 손해. 공실 기간이 길수록 수익 손실 누적. 마땅한 임차인 연결 채널 부재.</div>
+  </div>
+  <div class="problem-card blue-border">
+    <div class="problem-title">👤 청년 창업자 문제</div>
+    <div class="problem-body">초기 고정비 부담으로 5년 내 폐업률 94%. 저렴한 공실 상가가 있어도 정보 접근 경로 없어 활용 불가.</div>
+  </div>
+</div>
+<div class="footnote">※ 청년 창업 5년 내 폐업률 94% 출처: NH농협은행 NH트렌드+ 보고서 (경제시그널 2026.05.22 보도)</div>
+<div class="solution-bar">
+  <div class="solution-text">⇄ 공공데이터 교차 분석으로 공실 상가를 탐지하고, 저비용 창업 공간이 필요한 청년과 연결 → 건물주·청년 창업자 양측 문제 동시 해결</div>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>
+const gridColor = '#e1e0d9';
+const labelColor = '#898781';
+const avg = 14.1;
+new Chart(document.getElementById('regionChart'), {
+  type: 'bar',
+  data: {
+    labels: ["세종", "충북", "경북", "대구", "전북", "경남", "울산", "강원", "광주", "충남", "부산", "전남", "인천", "대전", "전국", "경기", "제주", "서울"],
+    datasets: [{ data: [27.0, 20.3, 18.6, 18.3, 18.2, 17.8, 17.7, 17.0, 16.7, 15.6, 15.3, 14.5, 14.3, 14.3, 14.1, 11.6, 10.8, 9.3], backgroundColor: ["#e34948", "#e34948", "#e34948", "#e34948", "#e34948", "#e34948", "#e34948", "#e34948", "#e34948", "#e34948", "#e34948", "#e34948", "#e34948", "#e34948", "#2a78d6", "#2a78d6", "#2a78d6", "#2a78d6"], borderRadius: 3, borderSkipped: false }]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => ctx.parsed.y.toFixed(1) + '%' } } },
+    scales: {
+      x: { grid: { color: gridColor }, ticks: { color: labelColor, font: { size: 10 }, autoSkip: false, maxRotation: 45 } },
+      y: { grid: { color: gridColor }, ticks: { color: labelColor, font: { size: 11 }, callback: v => v + '%' }, min: 0, max: 30 }
+    }
+  }
+});
+new Chart(document.getElementById('trendChart'), {
+  type: 'line',
+  data: {
+    labels: ["24Q3", "24Q4", "25Q1", "25Q2", "25Q3", "25Q4", "26Q1"],
+    datasets: [
+      { label: '중대형 공실률(%)', data: [12.7, 13.0, 13.2, 13.4, 13.6, 13.8, 14.1], borderColor: '#e34948', backgroundColor: 'rgba(227,73,72,0.07)', borderWidth: 2, pointRadius: 4, pointBackgroundColor: '#e34948', fill: true, tension: 0.3, yAxisID: 'y' },
+      { label: '소규모 공실률(%)', data: [6.5, 6.7, 7.3, 7.5, 8.0, 8.1, 8.3], borderColor: '#f59e0b', backgroundColor: 'transparent', borderWidth: 2, pointRadius: 4, pointBackgroundColor: '#f59e0b', fill: false, tension: 0.3, yAxisID: 'y' },
+      { label: '중대형 임대료(천원/㎡)', data: [26.5, 26.5, 26.5, 26.5, 26.5, 26.6, 26.6], borderColor: '#888780', backgroundColor: 'transparent', borderWidth: 2, pointRadius: 4, pointBackgroundColor: '#888780', fill: false, tension: 0.3, borderDash: [5,3], yAxisID: 'y2' },
+      { label: '소규모 임대료(천원/㎡)', data: [20.7, 20.7, 20.6, 20.6, 20.6, 20.6, 20.6], borderColor: '#2a78d6', backgroundColor: 'transparent', borderWidth: 2, pointRadius: 4, pointBackgroundColor: '#2a78d6', fill: false, tension: 0.3, borderDash: [2,2], yAxisID: 'y2' }
+    ]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => ctx.dataset.label + ': ' + ctx.parsed.y.toFixed(1) } } },
+    scales: {
+      x: { grid: { color: gridColor }, ticks: { color: labelColor, font: { size: 11 }, autoSkip: false } },
+      y: { type: 'linear', position: 'left', grid: { color: gridColor }, ticks: { color: '#e34948', font: { size: 11 }, callback: v => v + '%' }, min: 5, max: 16, title: { display: true, text: '공실률', color: '#e34948', font: { size: 11 } } },
+      y2: { type: 'linear', position: 'right', grid: { drawOnChartArea: false }, ticks: { color: labelColor, font: { size: 11 }, callback: v => v + '천' }, min: 18, max: 30, title: { display: true, text: '임대료(천원/㎡)', color: labelColor, font: { size: 11 } } }
+    }
+  }
+});
+</script>
+</body>
+</html>

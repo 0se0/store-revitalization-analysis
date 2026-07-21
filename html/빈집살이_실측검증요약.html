@@ -1,0 +1,1153 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>빈집살이 — 실측 검증 요약 (253개 건물)</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f8f8f7; color: #0b0b0b; padding: 2rem; }
+  h1 { font-size: 18px; font-weight: 500; margin-bottom: 4px; }
+  .subtitle { font-size: 12px; color: #898781; margin-bottom: 1.5rem; }
+  .kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 1.5rem; }
+  .kpi-card { background: #f1f0eb; border-radius: 8px; padding: 1rem; text-align: center; }
+  .kpi-label { font-size: 12px; color: #898781; margin-bottom: 6px; }
+  .kpi-value { font-size: 24px; font-weight: 600; }
+  .chart-box { background: #fff; border-radius: 12px; border: 0.5px solid rgba(11,11,11,0.1); padding: 1.25rem; margin-bottom: 1.5rem; }
+  .chart-title { font-size: 13px; font-weight: 500; color: #52514e; margin-bottom: 12px; }
+  table { width: 100%; border-collapse: collapse; font-size: 11px; }
+  th { text-align: left; color: #898781; font-weight: 500; padding: 6px 8px; border-bottom: 1px solid #e8e7e2; position: sticky; top: 0; background: #fff; }
+  td { padding: 6px 8px; border-bottom: 1px solid #f1f0eb; }
+  .scroll-box { max-height: 500px; overflow-y: auto; }
+  .note { font-size: 11px; color: #898781; margin-top: 1.5rem; line-height: 1.6; }
+</style>
+</head>
+<body>
+<h1>빈집살이 — 실측 검증 요약</h1>
+<div class="subtitle">소상공인 상가정보 API × 국토교통부 건축HUB API 실시간 연동 결과 (자동 스캔, 원본 로그: verification_log.csv)</div>
+
+<div class="kpi-grid">
+  <div class="kpi-card"><div class="kpi-label">스캔한 고유 건물(지번) 수</div><div class="kpi-value" style="color:#52514e;">253개</div></div>
+  <div class="kpi-card"><div class="kpi-label">집합건축물 수</div><div class="kpi-value" style="color:#2a78d6;">67개</div></div>
+  <div class="kpi-card"><div class="kpi-label">등록-실제 불일치 사례</div><div class="kpi-value" style="color:#e34948;">63개</div></div>
+  <div class="kpi-card"><div class="kpi-label">불일치 비율(집합건물 중)</div><div class="kpi-value" style="color:#e34948;">94.0%</div></div>
+</div>
+
+<div class="chart-box">
+  <div class="chart-title">불일치 격차 상위 20건 (실제영업중 - 등록전유부, 큰 순)</div>
+  <table>
+    <thead><tr><th>시군구</th><th>상가명(기준)</th><th>건물명</th><th>등록전유부</th><th>실제영업중</th><th>격차</th></tr></thead>
+    <tbody><tr>
+            <td>광진구</td><td>메가통신</td><td>강변테크노마트</td>
+            <td>1</td><td>500</td>
+            <td style="color:#e34948;font-weight:600;">+499</td>
+        </tr><tr>
+            <td>영등포구</td><td>한옥집김치찜롯데백화점</td><td>영등포 민자역사</td>
+            <td>1</td><td>266</td>
+            <td style="color:#e34948;font-weight:600;">+265</td>
+        </tr><tr>
+            <td>강남구</td><td>프라임세무회계사무소</td><td>수서현대벤쳐빌</td>
+            <td>0</td><td>254</td>
+            <td style="color:#e34948;font-weight:600;">+254</td>
+        </tr><tr>
+            <td>마포구</td><td>파마트엘지약국</td><td>LG팰리스빌딩</td>
+            <td>1</td><td>188</td>
+            <td style="color:#e34948;font-weight:600;">+187</td>
+        </tr><tr>
+            <td>강남구</td><td>세무사김승일사무소</td><td>한라클라식 오피스텔</td>
+            <td>1</td><td>170</td>
+            <td style="color:#e34948;font-weight:600;">+169</td>
+        </tr><tr>
+            <td>강남구</td><td>순영이엔지</td><td> </td>
+            <td>0</td><td>168</td>
+            <td style="color:#e34948;font-weight:600;">+168</td>
+        </tr><tr>
+            <td>마포구</td><td>법무사김기동사무소</td><td>한국사회복지회관 르네상스타워</td>
+            <td>1</td><td>143</td>
+            <td style="color:#e34948;font-weight:600;">+142</td>
+        </tr><tr>
+            <td>종로구</td><td>광명피아노</td><td> </td>
+            <td>1</td><td>142</td>
+            <td style="color:#e34948;font-weight:600;">+141</td>
+        </tr><tr>
+            <td>영등포구</td><td>홍스커피홍，sCoffee</td><td> </td>
+            <td>1</td><td>138</td>
+            <td style="color:#e34948;font-weight:600;">+137</td>
+        </tr><tr>
+            <td>성동구</td><td>한국성과코칭협회</td><td>성수역 SK V1 tower</td>
+            <td>1</td><td>114</td>
+            <td style="color:#e34948;font-weight:600;">+113</td>
+        </tr><tr>
+            <td>영등포구</td><td>상백임지석법률사무소</td><td>에이스 하이테크시티3</td>
+            <td>1</td><td>111</td>
+            <td style="color:#e34948;font-weight:600;">+110</td>
+        </tr><tr>
+            <td>강북구</td><td>연합시설관리주</td><td>가든타워오피스텔</td>
+            <td>1</td><td>109</td>
+            <td style="color:#e34948;font-weight:600;">+108</td>
+        </tr><tr>
+            <td>영등포구</td><td>LJ커뮤니케이션</td><td>에이스 하이테크시티2 지식산업센터</td>
+            <td>1</td><td>103</td>
+            <td style="color:#e34948;font-weight:600;">+102</td>
+        </tr><tr>
+            <td>강남구</td><td>동일세무회계사무소</td><td> </td>
+            <td>1</td><td>96</td>
+            <td style="color:#e34948;font-weight:600;">+95</td>
+        </tr><tr>
+            <td>영등포구</td><td>서민수임대</td><td>S-TRENUE</td>
+            <td>1</td><td>90</td>
+            <td style="color:#e34948;font-weight:600;">+89</td>
+        </tr><tr>
+            <td>영등포구</td><td>서울신문</td><td> </td>
+            <td>1</td><td>89</td>
+            <td style="color:#e34948;font-weight:600;">+88</td>
+        </tr><tr>
+            <td>마포구</td><td>힐링</td><td>제일빌딩</td>
+            <td>1</td><td>84</td>
+            <td style="color:#e34948;font-weight:600;">+83</td>
+        </tr><tr>
+            <td>영등포구</td><td>해연유학원</td><td>리버뷰 신안인스빌</td>
+            <td>1</td><td>82</td>
+            <td style="color:#e34948;font-weight:600;">+81</td>
+        </tr><tr>
+            <td>성동구</td><td>포스트디자인</td><td>서울숲AK밸리 지식산업센터</td>
+            <td>1</td><td>81</td>
+            <td style="color:#e34948;font-weight:600;">+80</td>
+        </tr><tr>
+            <td>종로구</td><td>임가전</td><td>세운상가</td>
+            <td>0</td><td>79</td>
+            <td style="color:#e34948;font-weight:600;">+79</td>
+        </tr></tbody>
+  </table>
+</div>
+
+<div class="chart-box">
+  <div class="chart-title">전체 스캔 로그 (표본 전체 — 실현가능성 증빙 원자료)</div>
+  <div class="scroll-box">
+    <table>
+      <thead><tr><th>시군구</th><th>상가명</th><th>지번주소</th><th>건물유형</th><th>등록전유부</th><th>실제영업중</th><th>비고</th></tr></thead>
+      <tbody><tr>
+            <td>강남구</td><td>수미상회</td><td>서울특별시 강남구 논현동 145-16</td>
+            <td>일반</td><td>-</td>
+            <td>-</td><td>일반건축물(단일단위)</td>
+        </tr><tr>
+            <td>강남구</td><td>강남연세안과의원</td><td>서울특별시 강남구 역삼동 705-30</td>
+            <td>일반</td><td>-</td>
+            <td>-</td><td>일반건축물(단일단위)</td>
+        </tr><tr>
+            <td>강남구</td><td>청담경일태권도</td><td>서울특별시 강남구 청담동 123-44</td>
+            <td>일반</td><td>-</td>
+            <td>-</td><td>일반건축물(단일단위)</td>
+        </tr><tr>
+            <td>강남구</td><td>도곡상회</td><td>서울특별시 강남구 역삼동 765-5</td>
+            <td>집합</td><td>1</td>
+            <td>15</td><td>불일치(등록<실제)</td>
+        </tr><tr>
+            <td>강남구</td><td>탠캘리포니아</td><td>서울특별시 강남구 신사동 523-18</td>
+            <td>일반</td><td>-</td>
+            <td>-</td><td>일반건축물(단일단위)</td>
+        </tr><tr>
+            <td>강남구</td><td>에이스엔지니어링</td><td>서울특별시 강남구 역삼동 708-33</td>
+            <td>집합</td><td>1</td>
+            <td>45</td><td>불일치(등록<실제)</td>
+        </tr><tr>
+            <td>강남구</td><td>한양법률사무소</td><td>서울특별시 강남구 역삼동 702-2</td>
+            <td>집합</td><td>1</td>
+            <td>69</td><td>불일치(등록<실제)</td>
+        </tr><tr>
+            <td>강남구</td><td>다함경영컨설팅</td><td>서울특별시 강남구 도곡동 417-12</td>
+            <td>일반</td><td>-</td>
+            <td>-</td><td>일반건축물(단일단위)</td>
+        </tr><tr>
+            <td>강남구</td><td>샤론스톤</td><td>서울특별시 강남구 압구정동 456</td>
+            <td>집합</td><td>1</td>
+            <td>30</td><td>불일치(등록<실제)</td>
+        </tr><tr>
+            <td>강남구</td><td>노리터</td><td>서울특별시 강남구 논현동 114-29</td>
+            <td>일반</td><td>-</td>
+            <td>-</td><td>일반건축물(단일단위)</td>
+        </tr><tr>
+            <td>강남구</td><td>세린유학원</td><td>서울특별시 강남구 대치동 889-47</td>
+            <td>집합</td><td>1</td>
+            <td>63</td><td>불일치(등록<실제)</td>
+        </tr><tr>
+            <td>강남구</td><td>문스페이스</td><td>서울특별시 강남구 신사동 548-4</td>
+            <td>일반</td><td>-</td>
+            <td>-</td><td>일반건축물(단일단위)</td>
+        </tr><tr>
+            <td>강남구</td><td>프라임세무회계사무소</td><td>서울특별시 강남구 수서동 713</td>
+            <td>집합</td><td>0</td>
+            <td>254</td><td>불일치(등록<실제)</td>
+        </tr><tr>
+            <td>강남구</td><td>순영이엔지</td><td>서울특별시 강남구 역삼동 702-13</td>
+            <td>집합</td><td>0</td>
+            <td>168</td><td>불일치(등록<실제)</td>
+        </tr><tr>
+            <td>강남구</td><td>만성질환뉴스</td><td>서울특별시 강남구 개포동 1264-7</td>
+            <td>집합</td><td>1</td>
+            <td>1</td><td></td>
+        </tr><tr>
+            <td>강남구</td><td>다미</td><td>서울특별시 강남구 삼성동 10-20</td>
+            <td>일반</td><td>-</td>
+            <td>-</td><td>일반건축물(단일단위)</td>
+        </tr><tr>
+            <td>강남구</td><td>가인미가</td><td>서울특별시 강남구 대치동 945-5</td>
+            <td>일반</td><td>-</td>
+            <td>-</td><td>일반건축물(단일단위)</td>
+        </tr><tr>
+            <td>강남구</td><td>제이엠엔터테인먼트</td><td>서울특별시 강남구 역삼동 728-39</td>
+            <td>일반</td><td>-</td>
+            <td>-</td><td>일반건축물(단일단위)</td>
+        </tr><tr>
+            <td>강남구</td><td>파리클라라</td><td>서울특별시 강남구 개포동 12-4</td>
+            <td>집합</td><td>1</td>
+            <td>70</td><td>불일치(등록<실제)</td>
+        </tr><tr>
+            <td>강남구</td><td>펜앤아트카페촉</td><td>서울특별시 강남구 삼성동 109</td>
+            <td>일반</td><td>-</td>
+            <td>-</td><td>일반건축물(단일단위)</td>
+        </tr><tr>
+            <td>강남구</td><td>박미정의한복이야기</td><td>서울특별시 강남구 논현동 111-1</td>
+            <td>일반</td><td>-</td>
+            <td>-</td><td>일반건축물(단일단위)</td>
+        </tr><tr>
+            <td>강남구</td><td>무역포장우</td><td>서울특별시 강남구 삼성동 159</td>
+            <td>일반</td><td>-</td>
+            <td>-</td><td>일반건축물(단일단위)</td>
+        </tr><tr>
+            <td>강남구</td><td>윤석란바디케어</td><td>서울특별시 강남구 신사동 658</td>
+            <td>집합</td><td>1</td>
+            <td>29</td><td>불일치(등록<실제)</td>
+        </tr><tr>
+            <td>강남구</td><td>동일세무회계사무소</td><td>서울특별시 강남구 논현동 203</td>
+            <td>집합</td><td>1</td>
+            <td>96</td><td>불일치(등록<실제)</td>
+        </tr><tr>
+            <td>강남구</td><td>디유</td><td>서울특별시 강남구 청담동 95-3</td>
+            <td>일반</td><td>-</td>
+            <td>-</td><td>일반건축물(단일단위)</td>
+        </tr><tr>
+            <td>강남구</td><td>잉크홀릭타투</td><td>서울특별시 강남구 논현동 6-5</td>
+            <td>일반</td><td>-</td>
+            <td>-</td><td>일반건축물(단일단위)</td>
+        </tr><tr>
+            <td>강남구</td><td>렌즈커뮤니케이션즈</td><td>서울특별시 강남구 논현동 151-25</td>
+            <td>일반</td><td>-</td>
+            <td>-</td><td>일반건축물(단일단위)</td>
+        </tr><tr>
+            <td>강남구</td><td>태양공인중개사사무소</td><td>서울특별시 강남구 삼성동 116-27</td>
+            <td>일반</td><td>-</td>
+            <td>-</td><td>일반건축물(단일단위)</td>
+        </tr><tr>
+            <td>강남구</td><td>세무사김승일사무소</td><td>서울특별시 강남구 역삼동 824-11</td>
+            <td>집합</td><td>1</td>
+            <td>170</td><td>불일치(등록<실제)</td>
+        </tr><tr>
+            <td>마포구</td><td>성모탑정형외과의원</td><td>서울특별시 마포구 도화동 544</td>
+            <td>집합</td><td>0</td>
+            <td>73</td><td>불일치(등록<실제)</td>
+        </tr><tr>
+            <td>마포구</td><td>마포청과</td><td>서울특별시 마포구 마포동 188-1</td>
+            <td>일반</td><td>-</td>
+            <td>-</td><td>일반건축물(단일단위)</td>
+        </tr><tr>
+            <td>마포구</td><td>곰두리여행</td><td>서울특별시 마포구 상암동 1640</td>
+            <td>일반</td><td>-</td>
+            <td>-</td><td>일반건축물(단일단위)</td>
+        </tr><tr>
+            <td>마포구</td><td>뉴월드유학센타</td><td>서울특별시 마포구 동교동 146-8</td>
+            <td>일반</td><td>-</td>
+            <td>-</td><td>일반건축물(단일단위)</td>
+        </tr><tr>
+            <td>마포구</td><td>라이브필</td><td>서울특별시 마포구 용강동 26-4</td>
+            <td>일반</td><td>-</td>
+            <td>-</td><td>일반건축물(단일단위)</td>
+        </tr><tr>
+            <td>마포구</td><td>즐거운포차</td><td>서울특별시 마포구 망원동 394-111</td>
+            <td>일반</td><td>-</td>
+            <td>-</td><td>일반건축물(단일단위)</td>
+        </tr><tr>
+            <td>마포구</td><td>119컴퓨터</td><td>서울특별시 마포구 공덕동 22-8</td>
+            <td>일반</td><td>-</td>
+            <td>-</td><td>일반건축물(단일단위)</td>
+        </tr><tr>
+            <td>마포구</td><td>법무사김기동사무소</td><td>서울특별시 마포구 공덕동 456</td>
+            <td>집합</td><td>1</td>
+            <td>143</td><td>불일치(등록<실제)</td>
+        </tr><tr>
+            <td>마포구</td><td>모비티</td><td>서울특별시 마포구 공덕동 479</td>
+            <td>집합</td><td>1</td>
+            <td>0</td><td></td>
+        </tr><tr>
+            <td>마포구</td><td>한국시사미디어</td><td>서울특별시 마포구 신수동 88-9</td>
+            <td>일반</td><td>-</td>
+            <td>-</td><td>일반건축물(단일단위)</td>
+        </tr><tr>
+            <td>마포구</td><td>파마트엘지약국</td><td>서울특별시 마포구 동교동 165-8</td>
+            <td>집합</td><td>1</td>
+            <td>188</td><td>불일치(등록<실제)</td>
+        </tr><tr>
+            <td>마포구</td><td>C&PBizSolution</td><td>서울특별시 마포구 성산동 56-1</td>
+            <td>일반</td><td>-</td>
+            <td>-</td><td>일반건축물(단일단위)</td>
+        </tr><tr>
+            <td>마포구</td><td>에스지디자인</td><td>서울특별시 마포구 서교동 351-21</td>
+            <td>일반</td><td>-</td>
+            <td>-</td><td>일반건축물(단일단위)</td>
+        </tr><tr>
+            <td>마포구</td><td>GS공인중개사사무소</td><td>서울특별시 마포구 서교동 393-12</td>
+            <td>일반</td><td>-</td>
+            <td>-</td><td>일반건축물(단일단위)</td>
+        </tr><tr>
+            <td>마포구</td><td>탑공인중개사사무소</td><td>서울특별시 마포구 상암동 34-79</td>
+            <td>일반</td><td>-</td>
+            <td>-</td><td>일반건축물(단일단위)</td>
+        </tr><tr>
+            <td>마포구</td><td>쁠랑풀리</td><td>서울특별시 마포구 연남동 487-32</td>
+            <td>일반</td><td>-</td>
+            <td>-</td><td>일반건축물(단일단위)</td>
+        </tr><tr>
+            <td>마포구</td><td>앤드</td><td>서울특별시 마포구 합정동 444-11</td>
+            <td>일반</td><td>-</td>
+            <td>-</td><td>일반건축물(단일단위)</td>
+        </tr><tr>
+            <td>마포구</td><td>소셜이노베이션그룹</td><td>서울특별시 마포구 성산동 226-1</td>
+            <td>일반</td><td>-</td>
+            <td>-</td><td>일반건축물(단일단위)</td>
+        </tr><tr>
+            <td>마포구</td><td>힐링</td><td>서울특별시 마포구 공덕동 256-13</td>
+            <td>집합</td><td>1</td>
+            <td>84</td><td>불일치(등록<실제)</td>
+        </tr><tr>
+            <td>마포구</td><td>크리에이티브아이디</td><td>서울특별시 마포구 망원동 456-24</td>
+            <td>일반</td><td>-</td>
+            <td>-</td><td>일반건축물(단일단위)</td>
+        </tr><tr>
+            <td>마포구</td><td>세상속으로가는요가원，책들</td><td>서울특별시 마포구 도화동 25-13</td>
+            <td>일반</td><td>-</td>
+            <td>-</td><td>일반건축물(단일단위)</td>
+        </tr><tr>
+            <td>마포구</td><td>케이투상암월드컵</td><td>서울특별시 마포구 성산동 515</td>
+            <td>일반</td><td>-</td>
+            <td>-</td><td>일반건축물(단일단위)</td>
+        </tr><tr>
+            <td>마포구</td><td>이유투어즈</td><td>서울특별시 마포구 노고산동 31-90</td>
+            <td>집합</td><td>1</td>
+            <td>34</td><td>불일치(등록<실제)</td>
+        </tr><tr>
+            <td>마포구</td><td>TheMonoCo.</td><td>서울특별시 마포구 망원동 471-2</td>
+            <td>일반</td><td>-</td>
+            <td>-</td><td>일반건축물(단일단위)</td>
+        </tr><tr>
+            <td>마포구</td><td>세무사김운룡사무소</td><td>서울특별시 마포구 공덕동 463</td>
+            <td>집합</td><td>1</td>
+            <td>68</td><td>불일치(등록<실제)</td>
+        </tr><tr>
+            <td>마포구</td><td>여명</td><td>서울특별시 마포구 도화동 181-2</td>
+            <td>일반</td><td>-</td>
+            <td>-</td><td>일반건축물(단일단위)</td>
+        </tr><tr>
+            <td>마포구</td><td>마음여행센터</td><td>서울특별시 마포구 대흥동 12-27</td>
+            <td>집합</td><td>0</td>
+            <td>39</td><td>불일치(등록<실제)</td>
+        </tr><tr>
+            <td>마포구</td><td>두루화랑</td><td>서울특별시 마포구 상수동 354-13</td>
+            <td>일반</td><td>-</td>
+            <td>-</td><td>일반건축물(단일단위)</td>
+        </tr><tr>
+            <td>마포구</td><td>홍익요가연구원</td><td>서울특별시 마포구 동교동 183-12</td>
+            <td>일반</td><td>-</td>
+            <td>-</td><td>일반건축물(단일단위)</td>
+        </tr><tr>
+            <td>광진구</td><td>프레쉬과일</td><td>서울특별시 광진구 중곡동 41-37</td>
+            <td>일반</td><td>-</td>
+            <td>-</td><td>일반건축물(단일단위)</td>
+        </tr><tr>
+            <td>광진구</td><td>썸씽</td><td>서울특별시 광진구 중곡동 79-13</td>
+            <td>일반</td><td>-</td>
+            <td>-</td><td>일반건축물(단일단위)</td>
+        </tr><tr>
+            <td>광진구</td><td>２H상사</td><td>서울특별시 광진구 중곡동 253-31</td>
+            <td>일반</td><td>-</td>
+            <td>-</td><td>일반건축물(단일단위)</td>
+        </tr><tr>
+            <td>광진구</td><td>M.nail</td><td>서울특별시 광진구 구의동 631-1</td>
+            <td>집합</td><td>1</td>
+            <td>73</td><td>불일치(등록<실제)</td>
+        </tr><tr>
+            <td>광진구</td><td>원우ENG</td><td>서울특별시 광진구 자양동 547-38</td>
+            <td>일반</td><td>-</td>
+            <td>-</td><td>일반건축물(단일단위)</td>
+        </tr><tr>
+            <td>광진구</td><td>박사공인중개사</td><td>서울특별시 광진구 화양동 119-4</td>
+            <td>일반</td><td>-</td>
+            <td>-</td><td>일반건축물(단일단위)</td>
+        </tr><tr>
+            <td>광진구</td><td>명인건축사사무소</td><td>서울특별시 광진구 구의동 252-14</td>
+            <td>집합</td><td>0</td>
+            <td>35</td><td>불일치(등록<실제)</td>
+        </tr><tr>
+            <td>광진구</td><td>씨유건대화양점</td><td>서울특별시 광진구 화양동 6-2</td>
+            <td>집합</td><td>1</td>
+            <td>20</td><td>불일치(등록<실제)</td>
+        </tr><tr>
+            <td>광진구</td><td>법무사문병식사무소</td><td>서울특별시 광진구 군자동 358-9</td>
+            <td>집합</td><td>1</td>
+            <td>42</td><td>불일치(등록<실제)</td>
+        </tr><tr>
+            <td>광진구</td><td>놀부부대찌개스타시티점</td><td>서울특별시 광진구 자양동 227-7</td>
+            <td>집합</td><td>1</td>
+            <td>40</td><td>불일치(등록<실제)</td>
+        </tr><tr>
+            <td>광진구</td><td>신백구약국</td><td>서울특별시 광진구 군자동 363-1</td>
+            <td>일반</td><td>-</td>
+            <td>-</td><td>일반건축물(단일단위)</td>
+        </tr><tr>
+            <td>광진구</td><td>삼성부동산공인중개사사무소</td><td>서울특별시 광진구 군자동 361-32</td>
+            <td>일반</td><td>-</td>
+            <td>-</td><td>일반건축물(단일단위)</td>
+        </tr><tr>
+            <td>광진구</td><td>라운지47</td><td>서울특별시 광진구 화양동 47-18</td>
+            <td>일반</td><td>-</td>
+            <td>-</td><td>일반건축물(단일단위)</td>
+        </tr><tr>
+            <td>광진구</td><td>시마모텔</td><td>서울특별시 광진구 자양동 10-6</td>
+            <td>일반</td><td>-</td>
+            <td>-</td><td>일반건축물(단일단위)</td>
+        </tr><tr>
+            <td>광진구</td><td>뺑드램</td><td>서울특별시 광진구 자양동 609-6</td>
+            <td>일반</td><td>-</td>
+            <td>-</td><td>일반건축물(단일단위)</td>
+        </tr><tr>
+            <td>광진구</td><td>탑공인중개사사무소</td><td>서울특별시 광진구 구의동 221-31</td>
+            <td>일반</td><td>-</td>
+            <td>-</td><td>일반건축물(단일단위)</td>
+        </tr><tr>
+            <td>광진구</td><td>대원기숙원</td><td>서울특별시 광진구 중곡동 20-2</td>
+            <td>일반</td><td>-</td>
+            <td>-</td><td>일반건축물(단일단위)</td>
+        </tr><tr>
+            <td>광진구</td><td>엠브로돈까스</td><td>서울특별시 광진구 구의동 244-50</td>
+            <td>집합</td><td>1</td>
+            <td>7</td><td>불일치(등록<실제)</td>
+        </tr><tr>
+            <td>광진구</td><td>동서울</td><td>서울특별시 광진구 구의동 595</td>
+            <td>일반</td><td>-</td>
+            <td>-</td><td>일반건축물(단일단위)</td>
+        </tr><tr>
+            <td>광진구</td><td>초월스터디카페</td><td>서울특별시 광진구 중곡동 18-75</td>
+            <td>일반</td><td>-</td>
+            <td>-</td><td>일반건축물(단일단위)</td>
+        </tr><tr>
+            <td>광진구</td><td>은혜분식</td><td>서울특별시 광진구 군자동 361-25</td>
+            <td>일반</td><td>-</td>
+            <td>-</td><td>일반건축물(단일단위)</td>
+        </tr><tr>
+            <td>광진구</td><td>오케이연탄막창구이</td><td>서울특별시 광진구 중곡동 38-8</td>
+            <td>일반</td><td>-</td>
+            <td>-</td><td>일반건축물(단일단위)</td>
+        </tr><tr>
+            <td>광진구</td><td>롤롤로샵</td><td>서울특별시 광진구 화양동 33-40</td>
+            <td>일반</td><td>-</td>
+            <td>-</td><td>일반건축물(단일단위)</td>
+        </tr><tr>
+            <td>광진구</td><td>몰디브태닝건대</td><td>서울특별시 광진구 화양동 48-5</td>
+            <td>일반</td><td>-</td>
+            <td>-</td><td>일반건축물(단일단위)</td>
+        </tr><tr>
+            <td>광진구</td><td>해오름공인중개사사무소</td><td>서울특별시 광진구 구의동 219-12</td>
+            <td>일반</td><td>-</td>
+            <td>-</td><td>일반건축물(단일단위)</td>
+        </tr><tr>
+            <td>광진구</td><td>메가통신</td><td>서울특별시 광진구 구의동 546-4</td>
+            <td>집합</td><td>1</td>
+            <td>500</td><td>불일치(등록<실제)</td>
+        </tr><tr>
+            <td>광진구</td><td>대원할인마트</td><td>서울특별시 광진구 중곡동 21-11</td>
+            <td>일반</td><td>-</td>
+            <td>-</td><td>일반건축물(단일단위)</td>
+        </tr><tr>
+            <td>광진구</td><td>팡팡</td><td>서울특별시 광진구 구의동 593-19</td>
+            <td>일반</td><td>-</td>
+            <td>-</td><td>일반건축물(단일단위)</td>
+        </tr><tr>
+            <td>광진구</td><td>파오로</td><td>서울특별시 광진구 화양동 7-12</td>
+            <td>일반</td><td>-</td>
+            <td>-</td><td>일반건축물(단일단위)</td>
+        </tr><tr>
+            <td>종로구</td><td>치휴한방병원</td><td>서울특별시 종로구 연건동 39</td>
+            <td>일반</td><td>-</td>
+            <td>-</td><td>일반건축물(단일단위)</td>
+        </tr><tr>
+            <td>종로구</td><td>청안</td><td>서울특별시 종로구 소격동 61</td>
+            <td>일반</td><td>-</td>
+            <td>-</td><td>일반건축물(단일단위)</td>
+        </tr><tr>
+            <td>종로구</td><td>수피아</td><td>서울특별시 종로구 종로3가 27</td>
+            <td>일반</td><td>-</td>
+            <td>-</td><td>일반건축물(단일단위)</td>
+        </tr><tr>
+            <td>종로구</td><td>광명피아노</td><td>서울특별시 종로구 낙원동 288</td>
+            <td>집합</td><td>1</td>
+            <td>142</td><td>불일치(등록<실제)</td>
+        </tr><tr>
+            <td>종로구</td><td>금술</td><td>서울특별시 종로구 종로4가 30</td>
+            <td>일반</td><td>-</td>
+            <td>-</td><td>일반건축물(단일단위)</td>
+        </tr><tr>
+            <td>종로구</td><td>동진산업</td><td>서울특별시 종로구 관수동 100</td>
+            <td>일반</td><td>-</td>
+            <td>-</td><td>일반건축물(단일단위)</td>
+        </tr><tr>
+            <td>종로구</td><td>천지의료기</td><td>서울특별시 종로구 종로3가 145-1</td>
+            <td>일반</td><td>-</td>
+            <td>-</td><td>일반건축물(단일단위)</td>
+        </tr><tr>
+            <td>종로구</td><td>열두척</td><td>서울특별시 종로구 묘동 24-1</td>
+            <td>일반</td><td>-</td>
+            <td>-</td><td>일반건축물(단일단위)</td>
+        </tr><tr>
+            <td>종로구</td><td>현대전기</td><td>서울특별시 종로구 계동 117-1</td>
+            <td>일반</td><td>-</td>
+            <td>-</td><td>일반건축물(단일단위)</td>
+        </tr><tr>
+            <td>종로구</td><td>종로양행</td><td>서울특별시 종로구 안국동 104</td>
+            <td>일반</td><td>-</td>
+            <td>-</td><td>일반건축물(단일단위)</td>
+        </tr><tr>
+            <td>종로구</td><td>임가전</td><td>서울특별시 종로구 장사동 116-4</td>
+            <td>집합</td><td>0</td>
+            <td>79</td><td>불일치(등록<실제)</td>
+        </tr><tr>
+            <td>종로구</td><td>싸립문을밀고들어서니</td><td>서울특별시 종로구 인사동 154-10</td>
+            <td>일반</td><td>-</td>
+            <td>-</td><td>일반건축물(단일단위)</td>
+        </tr><tr>
+            <td>종로구</td><td>비바체</td><td>서울특별시 종로구 인사동 257</td>
+            <td>일반</td><td>-</td>
+            <td>-</td><td>일반건축물(단일단위)</td>
+        </tr><tr>
+            <td>종로구</td><td>최가네곱창</td><td>서울특별시 종로구 종로3가 156-2</td>
+            <td>일반</td><td>-</td>
+            <td>-</td><td>일반건축물(단일단위)</td>
+        </tr><tr>
+            <td>종로구</td><td>쑥향떡집</td><td>서울특별시 종로구 연지동 188-3</td>
+            <td>일반</td><td>-</td>
+            <td>-</td><td>일반건축물(단일단위)</td>
+        </tr><tr>
+            <td>종로구</td><td>류화랑</td><td>서울특별시 종로구 관훈동 30-13</td>
+            <td>일반</td><td>-</td>
+            <td>-</td><td>일반건축물(단일단위)</td>
+        </tr><tr>
+            <td>종로구</td><td>담배집</td><td>서울특별시 종로구 돈의동 103-70</td>
+            <td>일반</td><td>-</td>
+            <td>-</td><td>일반건축물(단일단위)</td>
+        </tr><tr>
+            <td>종로구</td><td>에듀컴</td><td>서울특별시 종로구 와룡동 36-1</td>
+            <td>일반</td><td>-</td>
+            <td>-</td><td>일반건축물(단일단위)</td>
+        </tr><tr>
+            <td>종로구</td><td>마산아구원조</td><td>서울특별시 종로구 낙원동 99-1</td>
+            <td>일반</td><td>-</td>
+            <td>-</td><td>일반건축물(단일단위)</td>
+        </tr><tr>
+            <td>종로구</td><td>운석</td><td>서울특별시 종로구 봉익동 118-2</td>
+            <td>일반</td><td>-</td>
+            <td>-</td><td>일반건축물(단일단위)</td>
+        </tr><tr>
+            <td>종로구</td><td>도서마을</td><td>서울특별시 종로구 익선동 94-3</td>
+            <td>일반</td><td>-</td>
+            <td>-</td><td>일반건축물(단일단위)</td>
+        </tr><tr>
+            <td>종로구</td><td>반반2</td><td>서울특별시 종로구 돈의동 50</td>
+            <td>일반</td><td>-</td>
+            <td>-</td><td>일반건축물(단일단위)</td>
+        </tr><tr>
+            <td>종로구</td><td>보혁사</td><td>서울특별시 종로구 묘동 24-2</td>
+            <td>일반</td><td>-</td>
+            <td>-</td><td>일반건축물(단일단위)</td>
+        </tr><tr>
+            <td>종로구</td><td>시온상사</td><td>서울특별시 종로구 관수동 130-1</td>
+            <td>일반</td><td>-</td>
+            <td>-</td><td>일반건축물(단일단위)</td>
+        </tr><tr>
+            <td>종로구</td><td>상록</td><td>서울특별시 종로구 낙원동 236-1</td>
+            <td>일반</td><td>-</td>
+            <td>-</td><td>일반건축물(단일단위)</td>
+        </tr><tr>
+            <td>종로구</td><td>대한공인중개사무소</td><td>서울특별시 종로구 장사동 224-8</td>
+            <td>일반</td><td>-</td>
+            <td>-</td><td>일반건축물(단일단위)</td>
+        </tr><tr>
+            <td>종로구</td><td>건영사</td><td>서울특별시 종로구 충신동 25-37</td>
+            <td>일반</td><td>-</td>
+            <td>-</td><td>일반건축물(단일단위)</td>
+        </tr><tr>
+            <td>종로구</td><td>사동집</td><td>서울특별시 종로구 관훈동 29-18</td>
+            <td>일반</td><td>-</td>
+            <td>-</td><td>일반건축물(단일단위)</td>
+        </tr><tr>
+            <td>종로구</td><td>음식당</td><td>서울특별시 종로구 관훈동 192-36</td>
+            <td>일반</td><td>-</td>
+            <td>-</td><td>일반건축물(단일단위)</td>
+        </tr><tr>
+            <td>종로구</td><td>대성부동산</td><td>서울특별시 종로구 가회동 162-1</td>
+            <td>일반</td><td>-</td>
+            <td>-</td><td>일반건축물(단일단위)</td>
+        </tr><tr>
+            <td>중구</td><td>중앙전자시스템</td><td>서울특별시 중구 산림동 207-2</td>
+            <td>집합</td><td>1</td>
+            <td>50</td><td>불일치(등록<실제)</td>
+        </tr><tr>
+            <td>중구</td><td>예손</td><td>서울특별시 중구 충무로4가 154-1</td>
+            <td>일반</td><td>-</td>
+            <td>-</td><td>일반건축물(단일단위)</td>
+        </tr><tr>
+            <td>중구</td><td>서정구세무사사무소</td><td>서울특별시 중구 수표동 47-6</td>
+            <td>일반</td><td>-</td>
+            <td>-</td><td>일반건축물(단일단위)</td>
+        </tr><tr>
+            <td>중구</td><td>법무사박성수사무소</td><td>서울특별시 중구 서소문동 26</td>
+            <td>일반</td><td>-</td>
+            <td>-</td><td>일반건축물(단일단위)</td>
+        </tr><tr>
+            <td>중구</td><td>GS25단암</td><td>서울특별시 중구 남대문로5가 120</td>
+            <td>일반</td><td>-</td>
+            <td>-</td><td>일반건축물(단일단위)</td>
+        </tr><tr>
+            <td>중구</td><td>조은공인중개사사무소</td><td>서울특별시 중구 회현동3가 1-6</td>
+            <td>일반</td><td>-</td>
+            <td>-</td><td>일반건축물(단일단위)</td>
+        </tr><tr>
+            <td>중구</td><td>토담</td><td>서울특별시 중구 필동1가 3-19</td>
+            <td>일반</td><td>-</td>
+            <td>-</td><td>일반건축물(단일단위)</td>
+        </tr><tr>
+            <td>중구</td><td>카리스</td><td>서울특별시 중구 신당동 217-95</td>
+            <td>집합</td><td>1</td>
+            <td>37</td><td>불일치(등록<실제)</td>
+        </tr><tr>
+            <td>중구</td><td>을지로골뱅이</td><td>서울특별시 중구 신당동 368-59</td>
+            <td>일반</td><td>-</td>
+            <td>-</td><td>일반건축물(단일단위)</td>
+        </tr><tr>
+            <td>중구</td><td>오직건강원</td><td>서울특별시 중구 신당동 133-29</td>
+            <td>일반</td><td>-</td>
+            <td>-</td><td>일반건축물(단일단위)</td>
+        </tr><tr>
+            <td>중구</td><td>정동집</td><td>서울특별시 중구 정동 11-4</td>
+            <td>일반</td><td>-</td>
+            <td>-</td><td>일반건축물(단일단위)</td>
+        </tr><tr>
+            <td>중구</td><td>대광조명</td><td>서울특별시 중구 을지로4가 187-7</td>
+            <td>일반</td><td>-</td>
+            <td>-</td><td>일반건축물(단일단위)</td>
+        </tr><tr>
+            <td>중구</td><td>젬포스</td><td>서울특별시 중구 남창동 33-1</td>
+            <td>일반</td><td>-</td>
+            <td>-</td><td>일반건축물(단일단위)</td>
+        </tr><tr>
+            <td>중구</td><td>터보모터스</td><td>서울특별시 중구 충무로5가 20-26</td>
+            <td>일반</td><td>-</td>
+            <td>-</td><td>일반건축물(단일단위)</td>
+        </tr><tr>
+            <td>중구</td><td>씨엠</td><td>서울특별시 중구 을지로6가 17-18</td>
+            <td>집합</td><td>1</td>
+            <td>8</td><td>불일치(등록<실제)</td>
+        </tr><tr>
+            <td>중구</td><td>수정</td><td>서울특별시 중구 신당동 363-4</td>
+            <td>집합</td><td>1</td>
+            <td>4</td><td>불일치(등록<실제)</td>
+        </tr><tr>
+            <td>중구</td><td>아이템뱅크</td><td>서울특별시 중구 충무로3가 49</td>
+            <td>집합</td><td>1</td>
+            <td>51</td><td>불일치(등록<실제)</td>
+        </tr><tr>
+            <td>중구</td><td>드림컴정보통신</td><td>서울특별시 중구 남대문로5가 21-1</td>
+            <td>일반</td><td>-</td>
+            <td>-</td><td>일반건축물(단일단위)</td>
+        </tr><tr>
+            <td>중구</td><td>미뇽헤어</td><td>서울특별시 중구 서소문동 120-14</td>
+            <td>일반</td><td>-</td>
+            <td>-</td><td>일반건축물(단일단위)</td>
+        </tr><tr>
+            <td>중구</td><td>마카오Ⅰ</td><td>서울특별시 중구 을지로1가 37</td>
+            <td>일반</td><td>-</td>
+            <td>-</td><td>일반건축물(단일단위)</td>
+        </tr><tr>
+            <td>중구</td><td>만물성동</td><td>서울특별시 중구 흥인동 11-1</td>
+            <td>일반</td><td>-</td>
+            <td>-</td><td>일반건축물(단일단위)</td>
+        </tr><tr>
+            <td>중구</td><td>대영자동차서비스</td><td>서울특별시 중구 중림동 473</td>
+            <td>일반</td><td>-</td>
+            <td>-</td><td>일반건축물(단일단위)</td>
+        </tr><tr>
+            <td>중구</td><td>한솔기업</td><td>서울특별시 중구 을지로3가 334-10</td>
+            <td>일반</td><td>-</td>
+            <td>-</td><td>일반건축물(단일단위)</td>
+        </tr><tr>
+            <td>중구</td><td>신명인쇄</td><td>서울특별시 중구 인현동2가 135-32</td>
+            <td>일반</td><td>-</td>
+            <td>-</td><td>일반건축물(단일단위)</td>
+        </tr><tr>
+            <td>중구</td><td>아트아크릴</td><td>서울특별시 중구 예관동 37-2</td>
+            <td>일반</td><td>-</td>
+            <td>-</td><td>일반건축물(단일단위)</td>
+        </tr><tr>
+            <td>중구</td><td>정병철임대</td><td>서울특별시 중구 저동2가 78</td>
+            <td>집합</td><td>1</td>
+            <td>74</td><td>불일치(등록<실제)</td>
+        </tr><tr>
+            <td>중구</td><td>신의주부대찌개</td><td>서울특별시 중구 북창동 14-5</td>
+            <td>일반</td><td>-</td>
+            <td>-</td><td>일반건축물(단일단위)</td>
+        </tr><tr>
+            <td>중구</td><td>취홍</td><td>서울특별시 중구 순화동 66</td>
+            <td>일반</td><td>-</td>
+            <td>-</td><td>일반건축물(단일단위)</td>
+        </tr><tr>
+            <td>중구</td><td>동원민물장어</td><td>서울특별시 중구 북창동 75</td>
+            <td>일반</td><td>-</td>
+            <td>-</td><td>일반건축물(단일단위)</td>
+        </tr><tr>
+            <td>중구</td><td>서울퍼니테리어</td><td>서울특별시 중구 서소문동 37</td>
+            <td>일반</td><td>-</td>
+            <td>-</td><td>일반건축물(단일단위)</td>
+        </tr><tr>
+            <td>중구</td><td>공간</td><td>서울특별시 중구 을지로5가 35-6</td>
+            <td>집합</td><td>1</td>
+            <td>37</td><td>불일치(등록<실제)</td>
+        </tr><tr>
+            <td>영등포구</td><td>모모미술교습소</td><td>서울특별시 영등포구 양평동2가 23</td>
+            <td>집합</td><td>1</td>
+            <td>1</td><td></td>
+        </tr><tr>
+            <td>영등포구</td><td>라벨르미용실</td><td>서울특별시 영등포구 영등포동3가 4</td>
+            <td>집합</td><td>0</td>
+            <td>4</td><td>불일치(등록<실제)</td>
+        </tr><tr>
+            <td>영등포구</td><td>굿옵티컬안경</td><td>서울특별시 영등포구 여의도동 1</td>
+            <td>일반</td><td>-</td>
+            <td>-</td><td>일반건축물(단일단위)</td>
+        </tr><tr>
+            <td>영등포구</td><td>러브연애코치</td><td>서울특별시 영등포구 당산동1가 243</td>
+            <td>일반</td><td>-</td>
+            <td>-</td><td>일반건축물(단일단위)</td>
+        </tr><tr>
+            <td>영등포구</td><td>왕십리엄마네곱창</td><td>서울특별시 영등포구 당산동3가 326-1</td>
+            <td>일반</td><td>-</td>
+            <td>-</td><td>일반건축물(단일단위)</td>
+        </tr><tr>
+            <td>영등포구</td><td>해연유학원</td><td>서울특별시 영등포구 문래동4가 67</td>
+            <td>집합</td><td>1</td>
+            <td>82</td><td>불일치(등록<실제)</td>
+        </tr><tr>
+            <td>영등포구</td><td>홍스커피홍，sCoffee</td><td>서울특별시 영등포구 당산동2가 30-2</td>
+            <td>집합</td><td>1</td>
+            <td>138</td><td>불일치(등록<실제)</td>
+        </tr><tr>
+            <td>영등포구</td><td>오렌지커뮤니케이션</td><td>서울특별시 영등포구 영등포동8가 85-12</td>
+            <td>일반</td><td>-</td>
+            <td>-</td><td>일반건축물(단일단위)</td>
+        </tr><tr>
+            <td>영등포구</td><td>서민수임대</td><td>서울특별시 영등포구 여의도동 26</td>
+            <td>집합</td><td>1</td>
+            <td>90</td><td>불일치(등록<실제)</td>
+        </tr><tr>
+            <td>영등포구</td><td>라온</td><td>서울특별시 영등포구 당산동2가 108</td>
+            <td>일반</td><td>-</td>
+            <td>-</td><td>일반건축물(단일단위)</td>
+        </tr><tr>
+            <td>영등포구</td><td>디자인어울림</td><td>서울특별시 영등포구 신길동 287-1</td>
+            <td>일반</td><td>-</td>
+            <td>-</td><td>일반건축물(단일단위)</td>
+        </tr><tr>
+            <td>영등포구</td><td>미스터브리즈커피</td><td>서울특별시 영등포구 대림동 755-37</td>
+            <td>일반</td><td>-</td>
+            <td>-</td><td>일반건축물(단일단위)</td>
+        </tr><tr>
+            <td>영등포구</td><td>여행이좋다</td><td>서울특별시 영등포구 도림동 265-6</td>
+            <td>일반</td><td>-</td>
+            <td>-</td><td>일반건축물(단일단위)</td>
+        </tr><tr>
+            <td>영등포구</td><td>예인광고</td><td>서울특별시 영등포구 양평동2가 33-15</td>
+            <td>일반</td><td>-</td>
+            <td>-</td><td>일반건축물(단일단위)</td>
+        </tr><tr>
+            <td>영등포구</td><td>브이엠이즘</td><td>서울특별시 영등포구 여의도동 24-1</td>
+            <td>일반</td><td>-</td>
+            <td>-</td><td>일반건축물(단일단위)</td>
+        </tr><tr>
+            <td>영등포구</td><td>공간부식</td><td>서울특별시 영등포구 문래동2가 4-2</td>
+            <td>일반</td><td>-</td>
+            <td>-</td><td>일반건축물(단일단위)</td>
+        </tr><tr>
+            <td>영등포구</td><td>이미지메이커즈</td><td>서울특별시 영등포구 문래동3가 54-16</td>
+            <td>일반</td><td>-</td>
+            <td>-</td><td>일반건축물(단일단위)</td>
+        </tr><tr>
+            <td>영등포구</td><td>명성공인중개사사무소</td><td>서울특별시 영등포구 신길동 4950</td>
+            <td>집합</td><td>1</td>
+            <td>52</td><td>불일치(등록<실제)</td>
+        </tr><tr>
+            <td>영등포구</td><td>LJ커뮤니케이션</td><td>서울특별시 영등포구 문래동6가 24-1</td>
+            <td>집합</td><td>1</td>
+            <td>103</td><td>불일치(등록<실제)</td>
+        </tr><tr>
+            <td>영등포구</td><td>토탈패션</td><td>서울특별시 영등포구 신길동 7-42</td>
+            <td>일반</td><td>-</td>
+            <td>-</td><td>일반건축물(단일단위)</td>
+        </tr><tr>
+            <td>영등포구</td><td>클론컨설팅</td><td>서울특별시 영등포구 여의도동 45-3</td>
+            <td>일반</td><td>-</td>
+            <td>-</td><td>일반건축물(단일단위)</td>
+        </tr><tr>
+            <td>영등포구</td><td>서울신문</td><td>서울특별시 영등포구 여의도동 44-35</td>
+            <td>집합</td><td>1</td>
+            <td>89</td><td>불일치(등록<실제)</td>
+        </tr><tr>
+            <td>영등포구</td><td>한옥집김치찜롯데백화점</td><td>서울특별시 영등포구 영등포동 618-496</td>
+            <td>집합</td><td>1</td>
+            <td>266</td><td>불일치(등록<실제)</td>
+        </tr><tr>
+            <td>영등포구</td><td>전주집</td><td>서울특별시 영등포구 양평동5가 107-1</td>
+            <td>일반</td><td>-</td>
+            <td>-</td><td>일반건축물(단일단위)</td>
+        </tr><tr>
+            <td>영등포구</td><td>상백임지석법률사무소</td><td>서울특별시 영등포구 양평동3가 5-4</td>
+            <td>집합</td><td>1</td>
+            <td>111</td><td>불일치(등록<실제)</td>
+        </tr><tr>
+            <td>영등포구</td><td>찬스커피</td><td>서울특별시 영등포구 양평동1가 9-1</td>
+            <td>일반</td><td>-</td>
+            <td>-</td><td>일반건축물(단일단위)</td>
+        </tr><tr>
+            <td>영등포구</td><td>에스테틱YOU&I</td><td>서울특별시 영등포구 영등포동3가 9-13</td>
+            <td>집합</td><td>1</td>
+            <td>31</td><td>불일치(등록<실제)</td>
+        </tr><tr>
+            <td>영등포구</td><td>메이코트</td><td>서울특별시 영등포구 도림동 187-58</td>
+            <td>일반</td><td>-</td>
+            <td>-</td><td>일반건축물(단일단위)</td>
+        </tr><tr>
+            <td>영등포구</td><td>나무디자인</td><td>서울특별시 영등포구 문래동3가 77-9</td>
+            <td>집합</td><td>1</td>
+            <td>48</td><td>불일치(등록<실제)</td>
+        </tr><tr>
+            <td>영등포구</td><td>해바라기복권방</td><td>서울특별시 영등포구 대림동 693-5</td>
+            <td>일반</td><td>-</td>
+            <td>-</td><td>일반건축물(단일단위)</td>
+        </tr><tr>
+            <td>성동구</td><td>소망공인중개사사무소</td><td>서울특별시 성동구 용답동 4-11</td>
+            <td>일반</td><td>-</td>
+            <td>-</td><td>일반건축물(단일단위)</td>
+        </tr><tr>
+            <td>성동구</td><td>하나애드</td><td>서울특별시 성동구 성수동1가 13-164</td>
+            <td>집합</td><td>1</td>
+            <td>78</td><td>불일치(등록<실제)</td>
+        </tr><tr>
+            <td>성동구</td><td>비어오크</td><td>서울특별시 성동구 마장동 791-9</td>
+            <td>일반</td><td>-</td>
+            <td>-</td><td>일반건축물(단일단위)</td>
+        </tr><tr>
+            <td>성동구</td><td>남도집</td><td>서울특별시 성동구 도선동 83</td>
+            <td>일반</td><td>-</td>
+            <td>-</td><td>일반건축물(단일단위)</td>
+        </tr><tr>
+            <td>성동구</td><td>법무사이두석사무소</td><td>서울특별시 성동구 성수동1가 13-445</td>
+            <td>일반</td><td>-</td>
+            <td>-</td><td>일반건축물(단일단위)</td>
+        </tr><tr>
+            <td>성동구</td><td>짱텔레콤</td><td>서울특별시 성동구 용답동 57-13</td>
+            <td>일반</td><td>-</td>
+            <td>-</td><td>일반건축물(단일단위)</td>
+        </tr><tr>
+            <td>성동구</td><td>김종용누룽지통닭</td><td>서울특별시 성동구 행당동 19-46</td>
+            <td>일반</td><td>-</td>
+            <td>-</td><td>일반건축물(단일단위)</td>
+        </tr><tr>
+            <td>성동구</td><td>에스에이텍스타일</td><td>서울특별시 성동구 옥수동 323-17</td>
+            <td>일반</td><td>-</td>
+            <td>-</td><td>일반건축물(단일단위)</td>
+        </tr><tr>
+            <td>성동구</td><td>부동산랜드공인중개사사무소</td><td>서울특별시 성동구 송정동 73-420</td>
+            <td>일반</td><td>-</td>
+            <td>-</td><td>일반건축물(단일단위)</td>
+        </tr><tr>
+            <td>성동구</td><td>홍단</td><td>서울특별시 성동구 성수동2가 302-8</td>
+            <td>집합</td><td>1</td>
+            <td>30</td><td>불일치(등록<실제)</td>
+        </tr><tr>
+            <td>성동구</td><td>법무사원경희사무소</td><td>서울특별시 성동구 옥수동 220-1</td>
+            <td>집합</td><td>1</td>
+            <td>7</td><td>불일치(등록<실제)</td>
+        </tr><tr>
+            <td>성동구</td><td>단지내에이스공인중개사사무소</td><td>서울특별시 성동구 금호동2가 1</td>
+            <td>집합</td><td>1</td>
+            <td>17</td><td>불일치(등록<실제)</td>
+        </tr><tr>
+            <td>성동구</td><td>투워드</td><td>서울특별시 성동구 옥수동 100</td>
+            <td>집합</td><td>1</td>
+            <td>11</td><td>불일치(등록<실제)</td>
+        </tr><tr>
+            <td>성동구</td><td>하나기획</td><td>서울특별시 성동구 용답동 236-5</td>
+            <td>집합</td><td>1</td>
+            <td>14</td><td>불일치(등록<실제)</td>
+        </tr><tr>
+            <td>성동구</td><td>포스트디자인</td><td>서울특별시 성동구 성수동1가 13-207</td>
+            <td>집합</td><td>1</td>
+            <td>81</td><td>불일치(등록<실제)</td>
+        </tr><tr>
+            <td>성동구</td><td>건강한약국</td><td>서울특별시 성동구 도선동 48</td>
+            <td>일반</td><td>-</td>
+            <td>-</td><td>일반건축물(단일단위)</td>
+        </tr><tr>
+            <td>성동구</td><td>누아흐</td><td>서울특별시 성동구 성수동1가 13-117</td>
+            <td>집합</td><td>1</td>
+            <td>3</td><td>불일치(등록<실제)</td>
+        </tr><tr>
+            <td>성동구</td><td>라쿵푸마라탕</td><td>서울특별시 성동구 금호동1가 514</td>
+            <td>일반</td><td>-</td>
+            <td>-</td><td>일반건축물(단일단위)</td>
+        </tr><tr>
+            <td>성동구</td><td>빙고스타</td><td>서울특별시 성동구 마장동 574</td>
+            <td>일반</td><td>-</td>
+            <td>-</td><td>일반건축물(단일단위)</td>
+        </tr><tr>
+            <td>성동구</td><td>임페리얼골프아카데미</td><td>서울특별시 성동구 행당동 147</td>
+            <td>집합</td><td>1</td>
+            <td>13</td><td>불일치(등록<실제)</td>
+        </tr><tr>
+            <td>성동구</td><td>파란컴퍼니</td><td>서울특별시 성동구 옥수동 528</td>
+            <td>집합</td><td>1</td>
+            <td>15</td><td>불일치(등록<실제)</td>
+        </tr><tr>
+            <td>성동구</td><td>내가찜한닭</td><td>서울특별시 성동구 행당동 3-14</td>
+            <td>일반</td><td>-</td>
+            <td>-</td><td>일반건축물(단일단위)</td>
+        </tr><tr>
+            <td>성동구</td><td>성수꼬마</td><td>서울특별시 성동구 성수동1가 36-7</td>
+            <td>일반</td><td>-</td>
+            <td>-</td><td>일반건축물(단일단위)</td>
+        </tr><tr>
+            <td>성동구</td><td>미꼬쥬얼리주</td><td>서울특별시 성동구 성수동2가 277-40</td>
+            <td>집합</td><td>1</td>
+            <td>6</td><td>불일치(등록<실제)</td>
+        </tr><tr>
+            <td>성동구</td><td>한국성과코칭협회</td><td>서울특별시 성동구 성수동2가 315-61</td>
+            <td>집합</td><td>1</td>
+            <td>114</td><td>불일치(등록<실제)</td>
+        </tr><tr>
+            <td>성동구</td><td>에이엔에이치인터내셔날주</td><td>서울특별시 성동구 성수동2가 277-174</td>
+            <td>일반</td><td>-</td>
+            <td>-</td><td>일반건축물(단일단위)</td>
+        </tr><tr>
+            <td>성동구</td><td>한국석면환경협회</td><td>서울특별시 성동구 성수동2가 284-9</td>
+            <td>일반</td><td>-</td>
+            <td>-</td><td>일반건축물(단일단위)</td>
+        </tr><tr>
+            <td>성동구</td><td>서울그린트러스트재</td><td>서울특별시 성동구 성수동1가 685-217</td>
+            <td>일반</td><td>-</td>
+            <td>-</td><td>일반건축물(단일단위)</td>
+        </tr><tr>
+            <td>성동구</td><td>숲생태지도자협회</td><td>서울특별시 성동구 성수동1가 656-564</td>
+            <td>일반</td><td>-</td>
+            <td>-</td><td>일반건축물(단일단위)</td>
+        </tr><tr>
+            <td>성동구</td><td>한국공공디자인지역지원재단</td><td>서울특별시 성동구 행당동 17</td>
+            <td>일반</td><td>-</td>
+            <td>-</td><td>일반건축물(단일단위)</td>
+        </tr><tr>
+            <td>성동구</td><td>에코파티메아리</td><td>서울특별시 성동구 성수동2가 280-22</td>
+            <td>일반</td><td>-</td>
+            <td>-</td><td>일반건축물(단일단위)</td>
+        </tr><tr>
+            <td>성동구</td><td>한류국제문화교류협회</td><td>서울특별시 성동구 행당동 347</td>
+            <td>집합</td><td>1</td>
+            <td>26</td><td>불일치(등록<실제)</td>
+        </tr><tr>
+            <td>성동구</td><td>루트임팩트</td><td>서울특별시 성동구 성수동1가 22-8</td>
+            <td>일반</td><td>-</td>
+            <td>-</td><td>일반건축물(단일단위)</td>
+        </tr><tr>
+            <td>성동구</td><td>하나패스주</td><td>서울특별시 성동구 성수동1가 656-766</td>
+            <td>일반</td><td>-</td>
+            <td>-</td><td>일반건축물(단일단위)</td>
+        </tr><tr>
+            <td>성동구</td><td>코코스트레블</td><td>서울특별시 성동구 용답동 235-8</td>
+            <td>집합</td><td>1</td>
+            <td>8</td><td>불일치(등록<실제)</td>
+        </tr><tr>
+            <td>강북구</td><td>근이네야채가게</td><td>서울특별시 강북구 미아동 301-62</td>
+            <td>일반</td><td>-</td>
+            <td>-</td><td>일반건축물(단일단위)</td>
+        </tr><tr>
+            <td>강북구</td><td>리안헤어미아</td><td>서울특별시 강북구 미아동 58</td>
+            <td>일반</td><td>-</td>
+            <td>-</td><td>일반건축물(단일단위)</td>
+        </tr><tr>
+            <td>강북구</td><td>케이마트</td><td>서울특별시 강북구 미아동 310-5</td>
+            <td>일반</td><td>-</td>
+            <td>-</td><td>일반건축물(단일단위)</td>
+        </tr><tr>
+            <td>강북구</td><td>프라자안경</td><td>서울특별시 강북구 수유동 63</td>
+            <td>집합</td><td>1</td>
+            <td>17</td><td>불일치(등록<실제)</td>
+        </tr><tr>
+            <td>강북구</td><td>에스비정보통신</td><td>서울특별시 강북구 수유동 172-148</td>
+            <td>일반</td><td>-</td>
+            <td>-</td><td>일반건축물(단일단위)</td>
+        </tr><tr>
+            <td>강북구</td><td>여래사</td><td>서울특별시 강북구 수유동 410-181</td>
+            <td>일반</td><td>-</td>
+            <td>-</td><td>일반건축물(단일단위)</td>
+        </tr><tr>
+            <td>강북구</td><td>국선도수유수련원</td><td>서울특별시 강북구 수유동 468-235</td>
+            <td>집합</td><td>1</td>
+            <td>1</td><td></td>
+        </tr><tr>
+            <td>강북구</td><td>미인만들기</td><td>서울특별시 강북구 미아동 126-12</td>
+            <td>일반</td><td>-</td>
+            <td>-</td><td>일반건축물(단일단위)</td>
+        </tr><tr>
+            <td>강북구</td><td>우리순대국</td><td>서울특별시 강북구 우이동 49-15</td>
+            <td>일반</td><td>-</td>
+            <td>-</td><td>일반건축물(단일단위)</td>
+        </tr><tr>
+            <td>강북구</td><td>준이네</td><td>서울특별시 강북구 미아동 1353</td>
+            <td>집합</td><td>1</td>
+            <td>49</td><td>불일치(등록<실제)</td>
+        </tr><tr>
+            <td>강북구</td><td>찰떡궁합</td><td>서울특별시 강북구 수유동 175-61</td>
+            <td>일반</td><td>-</td>
+            <td>-</td><td>일반건축물(단일단위)</td>
+        </tr><tr>
+            <td>강북구</td><td>참행복한집</td><td>서울특별시 강북구 수유동 280-38</td>
+            <td>일반</td><td>-</td>
+            <td>-</td><td>일반건축물(단일단위)</td>
+        </tr><tr>
+            <td>강북구</td><td>비코바스</td><td>서울특별시 강북구 수유동 179-8</td>
+            <td>일반</td><td>-</td>
+            <td>-</td><td>일반건축물(단일단위)</td>
+        </tr><tr>
+            <td>강북구</td><td>시골닭발</td><td>서울특별시 강북구 수유동 221-21</td>
+            <td>일반</td><td>-</td>
+            <td>-</td><td>일반건축물(단일단위)</td>
+        </tr><tr>
+            <td>강북구</td><td>행복한새참</td><td>서울특별시 강북구 미아동 1353-5</td>
+            <td>집합</td><td>1</td>
+            <td>27</td><td>불일치(등록<실제)</td>
+        </tr><tr>
+            <td>강북구</td><td>썸</td><td>서울특별시 강북구 미아동 44-30</td>
+            <td>일반</td><td>-</td>
+            <td>-</td><td>일반건축물(단일단위)</td>
+        </tr><tr>
+            <td>강북구</td><td>도누가</td><td>서울특별시 강북구 미아동 301-17</td>
+            <td>일반</td><td>-</td>
+            <td>-</td><td>일반건축물(단일단위)</td>
+        </tr><tr>
+            <td>강북구</td><td>엉클로</td><td>서울특별시 강북구 수유동 252-164</td>
+            <td>일반</td><td>-</td>
+            <td>-</td><td>일반건축물(단일단위)</td>
+        </tr><tr>
+            <td>강북구</td><td>헤어핀</td><td>서울특별시 강북구 미아동 3-31</td>
+            <td>일반</td><td>-</td>
+            <td>-</td><td>일반건축물(단일단위)</td>
+        </tr><tr>
+            <td>강북구</td><td>제뉴인에이디컴퍼니</td><td>서울특별시 강북구 수유동 176-65</td>
+            <td>일반</td><td>-</td>
+            <td>-</td><td>일반건축물(단일단위)</td>
+        </tr><tr>
+            <td>강북구</td><td>이마트24번동</td><td>서울특별시 강북구 번동 471-14</td>
+            <td>일반</td><td>-</td>
+            <td>-</td><td>일반건축물(단일단위)</td>
+        </tr><tr>
+            <td>강북구</td><td>수다방</td><td>서울특별시 강북구 번동 465-84</td>
+            <td>일반</td><td>-</td>
+            <td>-</td><td>일반건축물(단일단위)</td>
+        </tr><tr>
+            <td>강북구</td><td>라인컴퍼니</td><td>서울특별시 강북구 미아동 215-50</td>
+            <td>일반</td><td>-</td>
+            <td>-</td><td>일반건축물(단일단위)</td>
+        </tr><tr>
+            <td>강북구</td><td>동일복원</td><td>서울특별시 강북구 번동 437-2</td>
+            <td>일반</td><td>-</td>
+            <td>-</td><td>일반건축물(단일단위)</td>
+        </tr><tr>
+            <td>강북구</td><td>명선감자탕</td><td>서울특별시 강북구 우이동 7-2</td>
+            <td>일반</td><td>-</td>
+            <td>-</td><td>일반건축물(단일단위)</td>
+        </tr><tr>
+            <td>강북구</td><td>장충동이가네족발</td><td>서울특별시 강북구 수유동 176-25</td>
+            <td>일반</td><td>-</td>
+            <td>-</td><td>일반건축물(단일단위)</td>
+        </tr><tr>
+            <td>강북구</td><td>요가힐엔필라테스</td><td>서울특별시 강북구 미아동 838-4</td>
+            <td>일반</td><td>-</td>
+            <td>-</td><td>일반건축물(단일단위)</td>
+        </tr><tr>
+            <td>강북구</td><td>미아주유소</td><td>서울특별시 강북구 미아동 1360</td>
+            <td>일반</td><td>-</td>
+            <td>-</td><td>일반건축물(단일단위)</td>
+        </tr><tr>
+            <td>강북구</td><td>&헤어</td><td>서울특별시 강북구 미아동 833-36</td>
+            <td>일반</td><td>-</td>
+            <td>-</td><td>일반건축물(단일단위)</td>
+        </tr><tr>
+            <td>강북구</td><td>오케이단란주점</td><td>서울특별시 강북구 번동 448-9</td>
+            <td>일반</td><td>-</td>
+            <td>-</td><td>일반건축물(단일단위)</td>
+        </tr><tr>
+            <td>강북구</td><td>크로스로드</td><td>서울특별시 강북구 미아동 310-40</td>
+            <td>일반</td><td>-</td>
+            <td>-</td><td>일반건축물(단일단위)</td>
+        </tr><tr>
+            <td>강북구</td><td>산아래</td><td>서울특별시 강북구 우이동 217-1</td>
+            <td>일반</td><td>-</td>
+            <td>-</td><td>일반건축물(단일단위)</td>
+        </tr><tr>
+            <td>강북구</td><td>연합시설관리주</td><td>서울특별시 강북구 번동 446-13</td>
+            <td>집합</td><td>1</td>
+            <td>109</td><td>불일치(등록<실제)</td>
+        </tr><tr>
+            <td>강북구</td><td>아이콤잉글리쉬주</td><td>서울특별시 강북구 수유동 359-54</td>
+            <td>일반</td><td>-</td>
+            <td>-</td><td>일반건축물(단일단위)</td>
+        </tr><tr>
+            <td>강북구</td><td>레드투어주</td><td>서울특별시 강북구 미아동 439-236</td>
+            <td>일반</td><td>-</td>
+            <td>-</td><td>일반건축물(단일단위)</td>
+        </tr><tr>
+            <td>강북구</td><td>드림드림사회적협동조합</td><td>서울특별시 강북구 미아동 127-7</td>
+            <td>일반</td><td>-</td>
+            <td>-</td><td>일반건축물(단일단위)</td>
+        </tr><tr>
+            <td>강북구</td><td>주번</td><td>서울특별시 강북구 미아동 637-13</td>
+            <td>일반</td><td>-</td>
+            <td>-</td><td>일반건축물(단일단위)</td>
+        </tr><tr>
+            <td>강북구</td><td>미소탑항공</td><td>서울특별시 강북구 미아동 228-35</td>
+            <td>일반</td><td>-</td>
+            <td>-</td><td>일반건축물(단일단위)</td>
+        </tr><tr>
+            <td>강북구</td><td>아이마코</td><td>서울특별시 강북구 수유동 189-1</td>
+            <td>일반</td><td>-</td>
+            <td>-</td><td>일반건축물(단일단위)</td>
+        </tr><tr>
+            <td>강북구</td><td>트래블리아</td><td>서울특별시 강북구 수유동 174-9</td>
+            <td>일반</td><td>-</td>
+            <td>-</td><td>일반건축물(단일단위)</td>
+        </tr></tbody>
+    </table>
+  </div>
+</div>
+
+<div class="note">
+※ 방법론: 여러 시군구의 상가정보 API 목록에서 고유 지번(건물)을 추출해 건축물대장 표제부로 집합/일반 여부를
+확인하고, 집합건축물인 경우 전유부(등록 호실)와 상가정보 건물단위조회(실제 영업중 사업체)를 대조했다.
+"등록전유부 &lt; 실제영업중"인 경우를 불일치로 판정했다(등록 절차 없이 내부를 쪼개 임대하는 사례로 추정).
+데이터: 소상공인시장진흥공단 상가(상권)정보 API, 국토교통부 건축HUB 건축물대장정보 API (실시간 조회).
+</div>
+</body>
+</html>

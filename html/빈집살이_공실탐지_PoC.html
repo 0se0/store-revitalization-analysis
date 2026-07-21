@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>빈집살이 — 공실 자동탐지 알고리즘 PoC</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f8f8f7; color: #0b0b0b; padding: 2rem; }
+  h1 { font-size: 18px; font-weight: 500; margin-bottom: 4px; }
+  .subtitle { font-size: 12px; color: #898781; margin-bottom: 1.5rem; }
+  .caveat { background: #fff7ed; border-left: 3px solid #f59e0b; padding: 0.75rem 1rem; font-size: 12px; color: #52514e; margin-bottom: 1.5rem; line-height: 1.6; }
+  .kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 1.5rem; }
+  .kpi-card { background: #f1f0eb; border-radius: 8px; padding: 1rem; text-align: center; }
+  .kpi-label { font-size: 12px; color: #898781; margin-bottom: 6px; }
+  .kpi-value { font-size: 24px; font-weight: 500; }
+  .kpi-sub { font-size: 11px; color: #898781; margin-top: 4px; }
+  .red { color: #e34948; } .green { color: #3b6d11; } .gray { color: #52514e; }
+  .chart-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 1.5rem; }
+  .chart-box { background: #fff; border-radius: 12px; border: 0.5px solid rgba(11,11,11,0.1); padding: 1.25rem; }
+  .chart-title { font-size: 13px; font-weight: 500; color: #52514e; margin-bottom: 12px; }
+  table { width: 100%; border-collapse: collapse; font-size: 12px; }
+  th { text-align: left; color: #898781; font-weight: 500; padding: 6px 8px; border-bottom: 1px solid #e8e7e2; }
+  td { padding: 6px 8px; border-bottom: 1px solid #f1f0eb; }
+  .status-matched { color: #2a78d6; font-weight: 600; }
+  .status-vacant { color: #e34948; font-weight: 600; }
+  .note { font-size: 11px; color: #898781; margin-top: 1.5rem; line-height: 1.6; }
+  .flow { display: flex; align-items: center; gap: 8px; font-size: 12px; color: #52514e; margin: 1rem 0; flex-wrap: wrap; }
+  .flow-box { background: #f1f0eb; border-radius: 6px; padding: 8px 12px; }
+  .flow-arrow { color: #898781; }
+</style>
+</head>
+<body>
+<h1>빈집살이 — 공실 자동탐지 알고리즘 PoC (Proof of Concept)</h1>
+<div class="subtitle">주소·층·호수 정규화 + 건축물대장×상가정보 교차매칭(차집합) 로직 검증</div>
+
+<div class="caveat">
+⚠️ <b>샘플 데이터 고지:</b> 아래 건축물대장·상가정보 데이터는 실제 공공 API 응답이 아니라, 두 기관의 실제 표기 방식
+차이(도로명 축약, 층수 표기, "지하"/"B1" 등)를 재현해 알고리즘 로직만을 검증하기 위해 직접 작성한 샘플 데이터다.
+실제 서비스 단계에서는 이 자리에 국토교통부 건축HUB API, 소상공인시장진흥공단 상가정보 API의 실 데이터가 들어가고,
+아래와 동일한 정규화·매칭 로직이 그대로 재사용된다.
+</div>
+
+<div class="flow">
+  <div class="flow-box">건축물대장<br><b>6개 호수</b> (전체)</div>
+  <div class="flow-arrow">−</div>
+  <div class="flow-box">상가정보<br><b>3개 호수</b> (영업중)</div>
+  <div class="flow-arrow">=</div>
+  <div class="flow-box" style="background:#fef2f2;color:#e34948;">공실 추정<br><b>3개 호수</b></div>
+</div>
+
+<div class="kpi-grid">
+  <div class="kpi-card">
+    <div class="kpi-label">정규화 전 매칭</div>
+    <div class="kpi-value red">0/6</div>
+    <div class="kpi-sub">기관별 표기 차이로 매칭 실패</div>
+  </div>
+  <div class="kpi-card">
+    <div class="kpi-label">정규화 후 매칭</div>
+    <div class="kpi-value green">3/6</div>
+    <div class="kpi-sub">영업중으로 정상 확인</div>
+  </div>
+  <div class="kpi-card">
+    <div class="kpi-label">공실 추정</div>
+    <div class="kpi-value gray">3개</div>
+    <div class="kpi-sub">건축물대장에만 존재</div>
+  </div>
+  <div class="kpi-card">
+    <div class="kpi-label">단계</div>
+    <div class="kpi-value gray">PoC</div>
+    <div class="kpi-sub">로직 검증 완료 · 실데이터 적용 예정</div>
+  </div>
+</div>
+
+<div class="chart-grid">
+  <div class="chart-box">
+    <div class="chart-title">건축물대장 전체 호수 vs 매칭 결과</div>
+    <table>
+      <thead><tr><th>주소</th><th>층</th><th>호</th><th>정규화 key</th><th>상태</th></tr></thead>
+      <tbody id="rowsBody"></tbody>
+    </table>
+  </div>
+  <div class="chart-box">
+    <div class="chart-title">상가정보 (영업중 목록)</div>
+    <table>
+      <thead><tr><th>주소</th><th>층</th><th>호</th><th>사업자</th></tr></thead>
+      <tbody id="bizBody"></tbody>
+    </table>
+  </div>
+</div>
+
+<div class="note">
+※ 방법론: (1) 건축물대장·상가정보 각 레코드의 주소·층·호수 표기를 정규화 함수로 통일된 key로 변환
+(예: "15-2번지"→"152", "지하1층"→"B1", "101호"→"101") (2) 상가정보 key 집합과 건축물대장 key를 비교해
+집합 차(건축물대장 − 상가정보)를 공실 추정 결과로 산출. 정규화 없이는 표기 차이로 매칭률이 0%에 가까웠으나
+정규화 적용 후 정상 매칭됨을 확인. 실제 서비스에서는 이 로직에 건축HUB API·상가정보 API의 실데이터를 연결한다.
+</div>
+
+<script>
+const rows = [{"addr": "서울특별시 종로구 종로3가 15-2번지", "floor": "1층", "unit": "101호", "key": "종로구종로3가152|1|101", "status": "매칭(영업중)"}, {"addr": "서울특별시 종로구 종로3가 15-2번지", "floor": "1층", "unit": "102호", "key": "종로구종로3가152|1|102", "status": "공실추정"}, {"addr": "서울특별시 종로구 종로3가 15-2번지", "floor": "2층", "unit": "201호", "key": "종로구종로3가152|2|201", "status": "공실추정"}, {"addr": "서울 중구 을지로 120", "floor": "지하1층", "unit": "B101호", "key": "중구을지로120|B1|101", "status": "매칭(영업중)"}, {"addr": "서울 중구 을지로 120", "floor": "2층", "unit": "203호", "key": "중구을지로120|2|203", "status": "공실추정"}, {"addr": "서울 마포구 어울마당로 65", "floor": "1층", "unit": "B동 1호", "key": "마포구어울마당로65|1|B동1", "status": "매칭(영업중)"}];
+const bizRows = [{"addr": "종로구 종로3가 15-2", "floor": "1F", "unit": "101", "name": "종로커피"}, {"addr": "중구 을지로 120번지", "floor": "B1", "unit": "101", "name": "을지분식"}, {"addr": "마포구 어울마당로 65", "floor": "1", "unit": "B동1호", "name": "홍대꽃집"}];
+const rb = document.getElementById('rowsBody');
+rows.forEach(r => {
+  const cls = r.status === '공실추정' ? 'status-vacant' : 'status-matched';
+  rb.innerHTML += `<tr><td>${r.addr}</td><td>${r.floor}</td><td>${r.unit}</td><td style="color:#898781;font-size:11px;">${r.key}</td><td class="${cls}">${r.status}</td></tr>`;
+});
+const bb = document.getElementById('bizBody');
+bizRows.forEach(r => {
+  bb.innerHTML += `<tr><td>${r.addr}</td><td>${r.floor}</td><td>${r.unit}</td><td>${r.name}</td></tr>`;
+});
+</script>
+</body>
+</html>
