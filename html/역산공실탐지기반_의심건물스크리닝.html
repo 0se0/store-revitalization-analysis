@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>역산공실탐지기반 — 의심건물 스크리닝 리포트 (2단계)</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f8f8f7; color: #0b0b0b; padding: 2rem; }
+  h1 { font-size: 18px; font-weight: 500; margin-bottom: 4px; }
+  .subtitle { font-size: 12px; color: #898781; margin-bottom: 1.5rem; }
+  .scope { background: #eff6ff; border-left: 3px solid #2a78d6; padding: 0.875rem 1.1rem; font-size: 12px; color: #52514e; margin-bottom: 1.5rem; line-height: 1.7; }
+  .kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 1.5rem; }
+  .kpi-card { background: #f1f0eb; border-radius: 8px; padding: 1rem; text-align: center; }
+  .kpi-label { font-size: 12px; color: #898781; margin-bottom: 6px; }
+  .kpi-value { font-size: 24px; font-weight: 600; }
+  .chart-box { background: #fff; border-radius: 12px; border: 0.5px solid rgba(11,11,11,0.1); padding: 1.25rem; margin-bottom: 1.5rem; }
+  .chart-title { font-size: 13px; font-weight: 500; color: #52514e; margin-bottom: 12px; }
+  .chart-wrap { position: relative; height: 380px; }
+  table { width: 100%; border-collapse: collapse; font-size: 12px; }
+  th { text-align: left; color: #898781; font-weight: 500; padding: 6px 8px; border-bottom: 1px solid #e8e7e2; }
+  td { padding: 6px 8px; border-bottom: 1px solid #f1f0eb; }
+  .score-badge { display: inline-block; background: #fef2f2; color: #e34948; font-weight: 700; padding: 2px 10px; border-radius: 20px; }
+  .note { font-size: 11px; color: #898781; margin-top: 1.5rem; line-height: 1.6; }
+</style>
+</head>
+<body>
+<h1>역산공실탐지기반 — 의심건물 스크리닝 리포트 (2단계)</h1>
+<div class="subtitle">등록전유부수 대비 실제영업중수 격차 기반 우선 확인 대상 우선순위 — verification_log.csv(303개 건물 실측) 재활용</div>
+
+<div class="scope">
+📍 <b>이 리포트의 성격:</b> "등록전유부수 &lt; 실제영업중수" 불일치는 그 자체로 불법 증축·무단 용도변경을 확정하는 증거가 아니라,
+<b>건축안전센터·국토안전관리원 등이 현장에서 확인해봐야 할 우선순위</b>를 데이터로 제시하는 것이다. 최종 판단은 관할 행정기관의
+현장 확인을 거쳐야 한다. 본 리포트는 1단계(안전등급 진단)에서 이미 수집한 실측 데이터를 재사용해 산출했으며, 별도의
+추가 데이터 수집 없이 즉시 생성 가능하다.
+</div>
+
+<div class="kpi-grid">
+  <div class="kpi-card">
+    <div class="kpi-label">전체 스캔 건물</div>
+    <div class="kpi-value" style="color:#52514e;">303개</div>
+  </div>
+  <div class="kpi-card">
+    <div class="kpi-label">집합건축물</div>
+    <div class="kpi-value" style="color:#2a78d6;">77개</div>
+  </div>
+  <div class="kpi-card">
+    <div class="kpi-label">등록-실제 불일치</div>
+    <div class="kpi-value" style="color:#e34948;">71개</div>
+  </div>
+  <div class="kpi-card">
+    <div class="kpi-label">불일치 비율</div>
+    <div class="kpi-value" style="color:#e34948;">92.2%</div>
+  </div>
+</div>
+
+<div class="chart-box">
+  <div class="chart-title">의심도 점수 상위 15건 (격차·배율 결합 점수)</div>
+  <div class="chart-wrap"><canvas id="barChart"></canvas></div>
+</div>
+
+<div class="chart-box">
+  <div class="chart-title">의심도 점수 상위 30건 상세 — 확인 우선순위 리스트</div>
+  <table>
+    <thead><tr><th>순위</th><th>시군구</th><th>상가명(기준)</th><th>건물명</th><th>등록전유부</th><th>실제영업중</th><th>격차</th><th>배율</th><th>의심도점수</th></tr></thead>
+    <tbody><tr>
+            <td>1</td>
+            <td>광진구</td>
+            <td>메가통신</td>
+            <td>강변테크노마트</td>
+            <td>1</td>
+            <td>500</td>
+            <td style="color:#e34948;font-weight:600;">+499</td>
+            <td style="color:#e34948;font-weight:600;">500.0배</td>
+            <td><span class="score-badge">100.0</span></td>
+        </tr><tr>
+            <td>2</td>
+            <td>영등포구</td>
+            <td>한옥집김치찜롯데백화점</td>
+            <td>영등포 민자역사</td>
+            <td>1</td>
+            <td>266</td>
+            <td style="color:#e34948;font-weight:600;">+265</td>
+            <td style="color:#e34948;font-weight:600;">266.0배</td>
+            <td><span class="score-badge">52.9</span></td>
+        </tr><tr>
+            <td>3</td>
+            <td>강남구</td>
+            <td>프라임세무회계사무소</td>
+            <td>수서현대벤쳐빌</td>
+            <td>1</td>
+            <td>254</td>
+            <td style="color:#e34948;font-weight:600;">+253</td>
+            <td style="color:#e34948;font-weight:600;">254.0배</td>
+            <td><span class="score-badge">50.5</span></td>
+        </tr><tr>
+            <td>4</td>
+            <td>마포구</td>
+            <td>파마트엘지약국</td>
+            <td>LG팰리스빌딩</td>
+            <td>1</td>
+            <td>188</td>
+            <td style="color:#e34948;font-weight:600;">+187</td>
+            <td style="color:#e34948;font-weight:600;">188.0배</td>
+            <td><span class="score-badge">37.2</span></td>
+        </tr><tr>
+            <td>5</td>
+            <td>강남구</td>
+            <td>세무사김승일사무소</td>
+            <td>한라클라식 오피스텔</td>
+            <td>1</td>
+            <td>170</td>
+            <td style="color:#e34948;font-weight:600;">+169</td>
+            <td style="color:#e34948;font-weight:600;">170.0배</td>
+            <td><span class="score-badge">33.6</span></td>
+        </tr><tr>
+            <td>6</td>
+            <td>강남구</td>
+            <td>순영이엔지</td>
+            <td>-</td>
+            <td>1</td>
+            <td>168</td>
+            <td style="color:#e34948;font-weight:600;">+167</td>
+            <td style="color:#e34948;font-weight:600;">168.0배</td>
+            <td><span class="score-badge">33.2</span></td>
+        </tr><tr>
+            <td>7</td>
+            <td>마포구</td>
+            <td>법무사김기동사무소</td>
+            <td>한국사회복지회관 르네상스타워</td>
+            <td>1</td>
+            <td>143</td>
+            <td style="color:#e34948;font-weight:600;">+142</td>
+            <td style="color:#e34948;font-weight:600;">143.0배</td>
+            <td><span class="score-badge">28.2</span></td>
+        </tr><tr>
+            <td>8</td>
+            <td>종로구</td>
+            <td>광명피아노</td>
+            <td>-</td>
+            <td>1</td>
+            <td>142</td>
+            <td style="color:#e34948;font-weight:600;">+141</td>
+            <td style="color:#e34948;font-weight:600;">142.0배</td>
+            <td><span class="score-badge">28.0</span></td>
+        </tr><tr>
+            <td>9</td>
+            <td>강남구</td>
+            <td>강남로얄</td>
+            <td>역삼하이츠빌딩</td>
+            <td>1</td>
+            <td>139</td>
+            <td style="color:#e34948;font-weight:600;">+138</td>
+            <td style="color:#e34948;font-weight:600;">139.0배</td>
+            <td><span class="score-badge">27.4</span></td>
+        </tr><tr>
+            <td>10</td>
+            <td>영등포구</td>
+            <td>홍스커피홍，sCoffee</td>
+            <td>-</td>
+            <td>1</td>
+            <td>138</td>
+            <td style="color:#e34948;font-weight:600;">+137</td>
+            <td style="color:#e34948;font-weight:600;">138.0배</td>
+            <td><span class="score-badge">27.2</span></td>
+        </tr><tr>
+            <td>11</td>
+            <td>성동구</td>
+            <td>한국성과코칭협회</td>
+            <td>성수역 SK V1 tower</td>
+            <td>1</td>
+            <td>114</td>
+            <td style="color:#e34948;font-weight:600;">+113</td>
+            <td style="color:#e34948;font-weight:600;">114.0배</td>
+            <td><span class="score-badge">22.3</span></td>
+        </tr><tr>
+            <td>12</td>
+            <td>영등포구</td>
+            <td>상백임지석법률사무소</td>
+            <td>에이스 하이테크시티3</td>
+            <td>1</td>
+            <td>111</td>
+            <td style="color:#e34948;font-weight:600;">+110</td>
+            <td style="color:#e34948;font-weight:600;">111.0배</td>
+            <td><span class="score-badge">21.7</span></td>
+        </tr><tr>
+            <td>13</td>
+            <td>강북구</td>
+            <td>연합시설관리주</td>
+            <td>가든타워오피스텔</td>
+            <td>1</td>
+            <td>109</td>
+            <td style="color:#e34948;font-weight:600;">+108</td>
+            <td style="color:#e34948;font-weight:600;">109.0배</td>
+            <td><span class="score-badge">21.3</span></td>
+        </tr><tr>
+            <td>14</td>
+            <td>영등포구</td>
+            <td>LJ커뮤니케이션</td>
+            <td>에이스 하이테크시티2 지식산업센터</td>
+            <td>1</td>
+            <td>103</td>
+            <td style="color:#e34948;font-weight:600;">+102</td>
+            <td style="color:#e34948;font-weight:600;">103.0배</td>
+            <td><span class="score-badge">20.1</span></td>
+        </tr><tr>
+            <td>15</td>
+            <td>강남구</td>
+            <td>동일세무회계사무소</td>
+            <td>-</td>
+            <td>1</td>
+            <td>96</td>
+            <td style="color:#e34948;font-weight:600;">+95</td>
+            <td style="color:#e34948;font-weight:600;">96.0배</td>
+            <td><span class="score-badge">18.7</span></td>
+        </tr><tr>
+            <td>16</td>
+            <td>영등포구</td>
+            <td>한백광고</td>
+            <td>리드원센터</td>
+            <td>1</td>
+            <td>93</td>
+            <td style="color:#e34948;font-weight:600;">+92</td>
+            <td style="color:#e34948;font-weight:600;">93.0배</td>
+            <td><span class="score-badge">18.1</span></td>
+        </tr><tr>
+            <td>17</td>
+            <td>영등포구</td>
+            <td>서민수임대</td>
+            <td>S-TRENUE</td>
+            <td>1</td>
+            <td>90</td>
+            <td style="color:#e34948;font-weight:600;">+89</td>
+            <td style="color:#e34948;font-weight:600;">90.0배</td>
+            <td><span class="score-badge">17.5</span></td>
+        </tr><tr>
+            <td>18</td>
+            <td>영등포구</td>
+            <td>서울신문</td>
+            <td>-</td>
+            <td>1</td>
+            <td>89</td>
+            <td style="color:#e34948;font-weight:600;">+88</td>
+            <td style="color:#e34948;font-weight:600;">89.0배</td>
+            <td><span class="score-badge">17.3</span></td>
+        </tr><tr>
+            <td>19</td>
+            <td>마포구</td>
+            <td>힐링</td>
+            <td>제일빌딩</td>
+            <td>1</td>
+            <td>84</td>
+            <td style="color:#e34948;font-weight:600;">+83</td>
+            <td style="color:#e34948;font-weight:600;">84.0배</td>
+            <td><span class="score-badge">16.3</span></td>
+        </tr><tr>
+            <td>20</td>
+            <td>영등포구</td>
+            <td>해연유학원</td>
+            <td>리버뷰 신안인스빌</td>
+            <td>1</td>
+            <td>82</td>
+            <td style="color:#e34948;font-weight:600;">+81</td>
+            <td style="color:#e34948;font-weight:600;">82.0배</td>
+            <td><span class="score-badge">15.9</span></td>
+        </tr><tr>
+            <td>21</td>
+            <td>성동구</td>
+            <td>포스트디자인</td>
+            <td>서울숲AK밸리 지식산업센터</td>
+            <td>1</td>
+            <td>81</td>
+            <td style="color:#e34948;font-weight:600;">+80</td>
+            <td style="color:#e34948;font-weight:600;">81.0배</td>
+            <td><span class="score-badge">15.7</span></td>
+        </tr><tr>
+            <td>22</td>
+            <td>종로구</td>
+            <td>임가전</td>
+            <td>세운상가</td>
+            <td>1</td>
+            <td>79</td>
+            <td style="color:#e34948;font-weight:600;">+78</td>
+            <td style="color:#e34948;font-weight:600;">79.0배</td>
+            <td><span class="score-badge">15.3</span></td>
+        </tr><tr>
+            <td>23</td>
+            <td>성동구</td>
+            <td>하나애드</td>
+            <td>서울숲IT밸리</td>
+            <td>1</td>
+            <td>78</td>
+            <td style="color:#e34948;font-weight:600;">+77</td>
+            <td style="color:#e34948;font-weight:600;">78.0배</td>
+            <td><span class="score-badge">15.1</span></td>
+        </tr><tr>
+            <td>24</td>
+            <td>중구</td>
+            <td>정병철임대</td>
+            <td>비즈센터</td>
+            <td>1</td>
+            <td>74</td>
+            <td style="color:#e34948;font-weight:600;">+73</td>
+            <td style="color:#e34948;font-weight:600;">74.0배</td>
+            <td><span class="score-badge">14.3</span></td>
+        </tr><tr>
+            <td>25</td>
+            <td>마포구</td>
+            <td>성모탑정형외과의원</td>
+            <td>고려빌딩</td>
+            <td>1</td>
+            <td>73</td>
+            <td style="color:#e34948;font-weight:600;">+72</td>
+            <td style="color:#e34948;font-weight:600;">73.0배</td>
+            <td><span class="score-badge">14.1</span></td>
+        </tr><tr>
+            <td>26</td>
+            <td>광진구</td>
+            <td>M.nail</td>
+            <td>현대프라임아파트</td>
+            <td>1</td>
+            <td>73</td>
+            <td style="color:#e34948;font-weight:600;">+72</td>
+            <td style="color:#e34948;font-weight:600;">73.0배</td>
+            <td><span class="score-badge">14.1</span></td>
+        </tr><tr>
+            <td>27</td>
+            <td>강남구</td>
+            <td>파리클라라</td>
+            <td>석탑프라자</td>
+            <td>1</td>
+            <td>70</td>
+            <td style="color:#e34948;font-weight:600;">+69</td>
+            <td style="color:#e34948;font-weight:600;">70.0배</td>
+            <td><span class="score-badge">13.5</span></td>
+        </tr><tr>
+            <td>28</td>
+            <td>강남구</td>
+            <td>한양법률사무소</td>
+            <td>삼성제일빌딩</td>
+            <td>1</td>
+            <td>69</td>
+            <td style="color:#e34948;font-weight:600;">+68</td>
+            <td style="color:#e34948;font-weight:600;">69.0배</td>
+            <td><span class="score-badge">13.3</span></td>
+        </tr><tr>
+            <td>29</td>
+            <td>마포구</td>
+            <td>세무사김운룡사무소</td>
+            <td>마포현대하이엘</td>
+            <td>1</td>
+            <td>68</td>
+            <td style="color:#e34948;font-weight:600;">+67</td>
+            <td style="color:#e34948;font-weight:600;">68.0배</td>
+            <td><span class="score-badge">13.1</span></td>
+        </tr><tr>
+            <td>30</td>
+            <td>강남구</td>
+            <td>세린유학원</td>
+            <td>샹제리제센터</td>
+            <td>1</td>
+            <td>63</td>
+            <td style="color:#e34948;font-weight:600;">+62</td>
+            <td style="color:#e34948;font-weight:600;">63.0배</td>
+            <td><span class="score-badge">12.1</span></td>
+        </tr></tbody>
+  </table>
+</div>
+
+<div class="note">
+※ 방법론: verification_log.csv에서 "등록전유부수 &lt; 실제영업중수" 불일치가 확인된 71개 건물을 대상으로,
+격차(실제영업중수 − 등록전유부수)와 배율(실제영업중수 ÷ 등록전유부수)을 각각 0~100으로 정규화한 뒤 동일 가중치(0.5:0.5)로
+결합해 의심도 점수를 산출했다. 격차는 관리 사각지대의 절대적 규모를, 배율은 등록 대비 실제 운영이 얼마나 벗어났는지를
+나타낸다. 데이터: 소상공인시장진흥공단 상가(상권)정보 API, 국토교통부 건축HUB 건축물대장정보 API(2026년 실측).
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>
+new Chart(document.getElementById('barChart'), {
+  type: 'bar',
+  data: {
+    labels: ["광진구 메가통신", "영등포구 한옥집김치찜롯데백화점", "강남구 프라임세무회계사무소", "마포구 파마트엘지약국", "강남구 세무사김승일사무소", "강남구 순영이엔지", "마포구 법무사김기동사무소", "종로구 광명피아노", "강남구 강남로얄", "영등포구 홍스커피홍，sCoffee", "성동구 한국성과코칭협회", "영등포구 상백임지석법률사무소", "강북구 연합시설관리주", "영등포구 LJ커뮤니케이션", "강남구 동일세무회계사무소"],
+    datasets: [{ data: [100.0, 52.9, 50.5, 37.2, 33.6, 33.2, 28.2, 28.0, 27.4, 27.2, 22.3, 21.7, 21.3, 20.1, 18.7], backgroundColor: '#e34948', borderRadius: 3 }]
+  },
+  options: {
+    indexAxis: 'y',
+    responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { display: false } },
+    scales: {
+      x: { grid: { color: '#e1e0d9' }, min: 0, max: 100 },
+      y: { grid: { display: false }, ticks: { font: { size: 10 } } }
+    }
+  }
+});
+</script>
+</body>
+</html>
