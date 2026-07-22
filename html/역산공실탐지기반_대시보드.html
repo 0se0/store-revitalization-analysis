@@ -22,9 +22,7 @@
   .legend-dot { width: 10px; height: 10px; border-radius: 2px; }
   .chart-wrap { position: relative; height: 280px; }
   .chart-foot { font-size: 11px; color: #898781; margin-top: 8px; }
-  .problem-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 8px; }
-  .problem-card { background: #f1f0eb; padding: 1rem 1.25rem; border-left: 3px solid #e34948; }
-  .problem-card.blue-border { border-left-color: #2a78d6; }
+  .problem-box { background: #f1f0eb; padding: 1rem 1.25rem; border-left: 3px solid #e34948; margin-bottom: 8px; }
   .problem-title { font-size: 13px; font-weight: 500; color: #0b0b0b; margin-bottom: 8px; }
   .problem-body { font-size: 13px; color: #52514e; line-height: 1.6; }
   .footnote { font-size: 11px; color: #898781; margin-bottom: 12px; }
@@ -46,14 +44,14 @@
     <div class="kpi-sub">2026년 1분기 ↑ 24Q3 대비 +1.8%p</div>
   </div>
   <div class="kpi-card">
-    <div class="kpi-label">중대형 상가 임대료</div>
-    <div class="kpi-value gray">26.6<span style="font-size:16px;">천원/㎡</span></div>
-    <div class="kpi-sub">2026년 1분기 → 24Q3 대비 +0.4%</div>
+    <div class="kpi-label">전국 건축물 노후 비율</div>
+    <div class="kpi-value gray">44.4%</div>
+    <div class="kpi-sub">준공 30년 경과 (2024년말 기준)</div>
   </div>
   <div class="kpi-card">
-    <div class="kpi-label">소규모 상가 임대료</div>
-    <div class="kpi-value blue">20.6<span style="font-size:16px;">천원/㎡</span></div>
-    <div class="kpi-sub">2026년 1분기 ↓ 24Q3 대비 -0.5%</div>
+    <div class="kpi-label">상업용 건축물 노후 비율</div>
+    <div class="kpi-value gray">34.4%</div>
+    <div class="kpi-sub">준공 30년 경과 (2024년말 기준)</div>
   </div>
 
 </div>
@@ -70,28 +68,19 @@
     <div class="chart-foot">출처: 한국부동산원 상업용부동산 임대동향조사 (2026년 1분기)</div>
   </div>
   <div class="chart-box">
-    <div class="chart-title">공실률 상승 vs 임대료 정체 (전국, 분기별)</div>
+    <div class="chart-title">전국 노후 건축물 비율 추이 (2005~2024)</div>
     <div class="legend">
-      <span class="legend-item"><span class="legend-dot" style="background:#e34948;"></span>중대형 공실률(%)</span>
-      <span class="legend-item"><span class="legend-dot" style="background:#f59e0b;"></span>소규모 공실률(%)</span>
-      <span class="legend-item"><span class="legend-dot" style="background:#888780;"></span>중대형 임대료(천원/㎡)</span>
-      <span class="legend-item"><span class="legend-dot" style="background:#2a78d6;"></span>소규모 임대료(천원/㎡)</span>
+      <span class="legend-item"><span class="legend-dot" style="background:#e34948;"></span>노후 건축물 비율(30년 이상, %)</span>
     </div>
     <div class="chart-wrap">
-      <canvas id="trendChart" role="img" aria-label="공실률 상승 vs 임대료 정체 추이">공실 상승 vs 임대료 정체</canvas>
+      <canvas id="trendChart" role="img" aria-label="전국 노후 건축물 비율 추이">노후 건축물 비율 추이</canvas>
     </div>
-    <div class="chart-foot">출처: 한국부동산원 상업용부동산 임대동향조사 (2024년 3분기~2026년 1분기 실제 공표 수치)</div>
+    <div class="chart-foot">출처: 국회입법조사처 현안분석 제133호(2020), 국토교통부 「전국 건축물 현황」(각 연도) | 노후건축물은 사용 과정에서 불법 용도변경·증축 등이 이루어지며 안전에 더 취약해진다(국회입법조사처, 2020)</div>
   </div>
 </div>
-<div class="problem-grid">
-  <div class="problem-card">
-    <div class="problem-title">🏪 건물주 문제</div>
-    <div class="problem-body">공실은 늘어나는데 임대료는 올리지 못하는 이중 손해. 공실 기간이 길수록 수익 손실 누적. 관리 소홀로 이어지기 쉬움.</div>
-  </div>
-  <div class="problem-card blue-border">
-    <div class="problem-title">🔥 지역사회 안전 문제</div>
-    <div class="problem-body">공실·폐업이 심화된 노후 상권은 관리 사각지대가 되어 화재 등 안전사고 위험을 높인다(세운상가 화재, 대전 안전공업 화재 등). 어느 상권이 위험한지 사전에 파악할 공공 지표는 없다.</div>
-  </div>
+<div class="problem-box">
+  <div class="problem-title">🔥 관리 사각지대 문제</div>
+  <div class="problem-body">공실·폐업이 심화된 노후 상권은 관리 소홀로 이어져 화재 등 안전사고 위험을 높인다(세운상가 화재, 대전 안전공업 화재 등). 그러나 "어느 노후 상권이 관리 사각지대에 놓여 있는지"를 사전에 파악할 수 있는 공공 지표는 없다.</div>
 </div>
 <div class="footnote">※ 노후 건축물 비율(44.4%) 출처: 국토교통부 「2024년도 전국 건축물 현황」(2025.09.29)</div>
 <div class="solution-bar">
@@ -120,21 +109,17 @@ new Chart(document.getElementById('regionChart'), {
 new Chart(document.getElementById('trendChart'), {
   type: 'line',
   data: {
-    labels: ["24Q3", "24Q4", "25Q1", "25Q2", "25Q3", "25Q4", "26Q1"],
+    labels: ['2005', '2017', '2018', '2019', '2022', '2024'],
     datasets: [
-      { label: '중대형 공실률(%)', data: [12.7, 13.0, 13.2, 13.4, 13.6, 13.8, 14.1], borderColor: '#e34948', backgroundColor: 'rgba(227,73,72,0.07)', borderWidth: 2, pointRadius: 4, pointBackgroundColor: '#e34948', fill: true, tension: 0.3, yAxisID: 'y' },
-      { label: '소규모 공실률(%)', data: [6.5, 6.7, 7.3, 7.5, 8.0, 8.1, 8.3], borderColor: '#f59e0b', backgroundColor: 'transparent', borderWidth: 2, pointRadius: 4, pointBackgroundColor: '#f59e0b', fill: false, tension: 0.3, yAxisID: 'y' },
-      { label: '중대형 임대료(천원/㎡)', data: [26.5, 26.5, 26.5, 26.5, 26.5, 26.6, 26.6], borderColor: '#888780', backgroundColor: 'transparent', borderWidth: 2, pointRadius: 4, pointBackgroundColor: '#888780', fill: false, tension: 0.3, borderDash: [5,3], yAxisID: 'y2' },
-      { label: '소규모 임대료(천원/㎡)', data: [20.7, 20.7, 20.6, 20.6, 20.6, 20.6, 20.6], borderColor: '#2a78d6', backgroundColor: 'transparent', borderWidth: 2, pointRadius: 4, pointBackgroundColor: '#2a78d6', fill: false, tension: 0.3, borderDash: [2,2], yAxisID: 'y2' }
+      { label: '노후 건축물 비율(%)', data: [29.0, 36.5, 37.1, 37.8, 41.0, 44.4], borderColor: '#e34948', backgroundColor: 'rgba(227,73,72,0.07)', borderWidth: 2, pointRadius: 4, pointBackgroundColor: '#e34948', fill: true, tension: 0.3 }
     ]
   },
   options: {
     responsive: true, maintainAspectRatio: false,
-    plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => ctx.dataset.label + ': ' + ctx.parsed.y.toFixed(1) } } },
+    plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => ctx.parsed.y.toFixed(1) + '%' } } },
     scales: {
-      x: { grid: { color: gridColor }, ticks: { color: labelColor, font: { size: 11 }, autoSkip: false } },
-      y: { type: 'linear', position: 'left', grid: { color: gridColor }, ticks: { color: '#e34948', font: { size: 11 }, callback: v => v + '%' }, min: 5, max: 16, title: { display: true, text: '공실률', color: '#e34948', font: { size: 11 } } },
-      y2: { type: 'linear', position: 'right', grid: { drawOnChartArea: false }, ticks: { color: labelColor, font: { size: 11 }, callback: v => v + '천' }, min: 18, max: 30, title: { display: true, text: '임대료(천원/㎡)', color: labelColor, font: { size: 11 } } }
+      x: { grid: { color: gridColor }, ticks: { color: labelColor, font: { size: 11 } }, title: { display: true, text: '(연도 간격이 균등하지 않음 — 실제 공표 연도만 표시)', color: labelColor, font: { size: 10 } } },
+      y: { grid: { color: gridColor }, ticks: { color: '#e34948', font: { size: 11 }, callback: v => v + '%' }, min: 20, max: 50 }
     }
   }
 });
