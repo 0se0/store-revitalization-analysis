@@ -39,7 +39,7 @@ def _region_latest(df):
     내림차순 정렬한 [(지역명, 값), ...] 반환
     """
     col = QUARTERS[-1]
-    mask = (df['지역'] == df['지역.1']) & (~df['지역'].isin(['지역']))
+    mask = (df['지역'] == df['지역.1']) & (~df['지역'].isin(['지역', '전국']))
     region_df = df[mask][['지역', col]].copy()
     region_df[col] = pd.to_numeric(region_df[col], errors='coerce')
     region_df = region_df.dropna().sort_values(col, ascending=False)
@@ -156,7 +156,7 @@ def generate(data: dict) -> str:
   * {{ box-sizing: border-box; margin: 0; padding: 0; }}
   body {{ font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f8f8f7; color: #0b0b0b; padding: 2rem; }}
   h1 {{ font-size: 18px; font-weight: 500; margin-bottom: 1.5rem; color: #0b0b0b; }}
-  .kpi-grid {{ display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; margin-bottom: 2rem; }}
+  .kpi-grid {{ display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 2rem; }}
   .kpi-card {{ background: #f1f0eb; border-radius: 8px; padding: 1rem; text-align: center; }}
   .kpi-label {{ font-size: 13px; color: #898781; margin-bottom: 6px; }}
   .kpi-value {{ font-size: 28px; font-weight: 500; }}
@@ -181,7 +181,7 @@ def generate(data: dict) -> str:
 </style>
 </head>
 <body>
-<h1>역산공실탐지기반 — 공공데이터 기반 상가 공실 현황 및 청년 창업 문제</h1>
+<h1>역산공실탐지기반 — 공공데이터 기반 노후상가 공실·안전관리 사각지대 현황</h1>
 <div class="kpi-grid">
   <div class="kpi-card">
     <div class="kpi-label">전국 중대형 상가 공실률</div>
@@ -203,11 +203,7 @@ def generate(data: dict) -> str:
     <div class="kpi-value blue">{kpi['rent_small_latest']:.1f}<span style="font-size:16px;">천원/㎡</span></div>
     <div class="kpi-sub">2026년 1분기 {rent_s_arrow} 24Q3 대비 {rent_s_chg}</div>
   </div>
-  <div class="kpi-card">
-    <div class="kpi-label">청년 창업 5년 내 폐업률</div>
-    <div class="kpi-value red">94%</div>
-    <div class="kpi-sub">NH농협은행 NH트렌드+ (2026)</div>
-  </div>
+
 </div>
 <div class="chart-grid">
   <div class="chart-box">
@@ -238,16 +234,16 @@ def generate(data: dict) -> str:
 <div class="problem-grid">
   <div class="problem-card">
     <div class="problem-title">🏪 건물주 문제</div>
-    <div class="problem-body">공실은 늘어나는데 임대료는 올리지 못하는 이중 손해. 공실 기간이 길수록 수익 손실 누적. 마땅한 임차인 연결 채널 부재.</div>
+    <div class="problem-body">공실은 늘어나는데 임대료는 올리지 못하는 이중 손해. 공실 기간이 길수록 수익 손실 누적. 관리 소홀로 이어지기 쉬움.</div>
   </div>
   <div class="problem-card blue-border">
-    <div class="problem-title">👤 청년 창업자 문제</div>
-    <div class="problem-body">초기 고정비 부담으로 5년 내 폐업률 94%. 저렴한 공실 상가가 있어도 정보 접근 경로 없어 활용 불가.</div>
+    <div class="problem-title">🔥 지역사회 안전 문제</div>
+    <div class="problem-body">공실·폐업이 심화된 노후 상권은 관리 사각지대가 되어 화재 등 안전사고 위험을 높인다(세운상가 화재, 대전 안전공업 화재 등). 어느 상권이 위험한지 사전에 파악할 공공 지표는 없다.</div>
   </div>
 </div>
-<div class="footnote">※ 청년 창업 5년 내 폐업률 94% 출처: NH농협은행 NH트렌드+ 보고서 (경제시그널 2026.05.22 보도)</div>
+<div class="footnote">※ 노후 건축물 비율(44.4%) 출처: 국토교통부 「2024년도 전국 건축물 현황」(2025.09.29)</div>
 <div class="solution-bar">
-  <div class="solution-text">⇄ 공공데이터 교차 분석으로 공실 상가를 탐지하고, 저비용 창업 공간이 필요한 청년과 연결 → 건물주·청년 창업자 양측 문제 동시 해결</div>
+  <div class="solution-text">⇄ 공공데이터 교차 분석으로 공실·노후 상권을 탐지하고, 안전관리 우선순위 등급(A~D)을 산출 → 지자체·소방당국의 점검 인력 배분 효율화</div>
 </div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <script>
