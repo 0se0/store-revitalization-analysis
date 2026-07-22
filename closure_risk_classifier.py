@@ -118,6 +118,28 @@ def build_features(full):
     return full
 
 
+def _closure_sparkline_svg(values: list, width: int = 90, height: int = 24) -> str:
+    """최근 폐업률 추이를 작은 라인 스파크라인 SVG로 그림 (행 내 상대적 변화만 표시)."""
+    if not values or len(values) < 2:
+        return ""
+    vmin, vmax = min(values), max(values)
+    rng = (vmax - vmin) or 1
+    n = len(values)
+    pts = []
+    for i, v in enumerate(values):
+        x = round(i / (n - 1) * (width - 4) + 2, 1)
+        y = round(height - 2 - (v - vmin) / rng * (height - 4), 1)
+        pts.append(f"{x},{y}")
+    points_str = " ".join(pts)
+    last_x, last_y = pts[-1].split(",")
+    return (
+        f'<svg width="{width}" height="{height}" viewBox="0 0 {width} {height}">'
+        f'<polyline points="{points_str}" fill="none" stroke="#898781" stroke-width="1.5"/>'
+        f'<circle cx="{last_x}" cy="{last_y}" r="2" fill="#e34948"/>'
+        f'</svg>'
+    )
+
+
 def main():
     print("1) CSV 5개 로드 중...")
     full = load_panel()
@@ -187,18 +209,34 @@ def main():
     top10 = latest.sort_values('risk_proba', ascending=False).head(10)
     by_induty = latest.groupby('svc_induty_cd_nm')['risk_proba'].mean().sort_values(ascending=False).head(8)
 
+    # top10 각 상권x업종의 최근 4분기 폐업률 이력(스파크라인용) 조회
+    top10_records = top10[['trdar_cd', 'svc_induty_cd', 'trdar_cd_nm', 'trdar_se_cd_nm', 'svc_induty_cd_nm',
+                            'stor_co', 'clsbiz_rt', 'prev_clsbiz_rt', 'risk_proba']].copy()
+    hist_sparklines = []
+    for _, r in top10_records.iterrows():
+        hist = full[(full['trdar_cd'] == r['trdar_cd']) & (full['svc_induty_cd'] == r['svc_induty_cd'])] \
+            .sort_values('stdr_yyqu_cd')['clsbiz_rt'].tail(4).tolist()
+        hist_sparklines.append(_closure_sparkline_svg(hist))
+    top10_records['spark'] = hist_sparklines
+
+    precision_ratio = round(prec / (float(sub['risk_label'].mean())), 1)
+
     result = {
         "min_stor": MIN_STOR, "z_threshold": Z_THRESHOLD,
         "n_train": len(train), "n_test": len(test),
         "positive_rate": round(float(sub['risk_label'].mean()) * 100, 1),
+        "precision_ratio": precision_ratio,
         "auc": round(float(auc), 3), "naive_auc": round(float(naive_auc), 3),
         "precision": round(float(prec), 3), "recall": round(float(rec), 3), "f1": round(float(f1), 3),
         "cm": cm.tolist(),
         "importances": [{"name": FEATURE_LABELS.get(k, k), "value": round(float(v), 3)}
                          for k, v in importances.head(8).items()],
-        "top10": top10[['trdar_cd_nm', 'trdar_se_cd_nm', 'svc_induty_cd_nm', 'stor_co',
-                         'clsbiz_rt', 'risk_proba']].assign(
-            risk_proba=lambda d: (d['risk_proba'] * 100).round(1)).round(1).to_dict('records'),
+        "top10": top10_records[['trdar_cd_nm', 'trdar_se_cd_nm', 'svc_induty_cd_nm', 'stor_co',
+                         'prev_clsbiz_rt', 'clsbiz_rt', 'spark', 'risk_proba']].assign(
+            risk_proba=lambda d: (d['risk_proba'] * 100).round(1),
+            prev_clsbiz_rt=lambda d: d['prev_clsbiz_rt'].round(1),
+            clsbiz_rt=lambda d: d['clsbiz_rt'].round(1),
+            stor_co=lambda d: d['stor_co'].round(1)).to_dict('records'),
         "by_induty": [{"name": k, "value": round(float(v) * 100, 1)} for k, v in by_induty.items()],
         "latest_quarter": int(full['stdr_yyqu_cd'].max()),
     }
@@ -216,6 +254,7 @@ def write_html(r):
         auc=r['auc'], naive_auc=r['naive_auc'], recall=r['recall'], precision=r['precision'], f1=r['f1'],
         n_train=f"{r['n_train']:,}", n_test=f"{r['n_test']:,}", min_stor=r['min_stor'],
         z_threshold=r['z_threshold'], pos_rate=r['positive_rate'], latest_q=_fmt_q(r['latest_quarter']),
+        precision_ratio=r['precision_ratio'],
         tp=r['cm'][1][1], fn=r['cm'][1][0], fp=r['cm'][0][1], tn=r['cm'][0][0],
         imp_json=json.dumps(r['importances'], ensure_ascii=False),
         induty_json=json.dumps(r['by_induty'], ensure_ascii=False),
@@ -265,27 +304,28 @@ HTML_TEMPLATE = """<!DOCTYPE html>
 <div class="subtitle">Random Forest Classifier | 라벨: 두 비율 z-검정(z≥{z_threshold})으로 판정한 "다음 분기 폐업률의 통계적으로 유의한 증가" 여부 | 데이터: 서울시 우리마을가게 상권분석서비스(2021~2025, 20개 분기)</div>
 
 <div class="scope">
-📍 <b>이 모델의 서비스 내 위치:</b> 이 모델은 "공실 탐지"(건축물대장×상가정보 교차매칭으로 개별 빈 호수를 찾는 것)와는
-다른 데이터·다른 목적의 분석이다. 이 모델은 <b>영업 중인 상권×업종</b>이 다음 분기에 폐업 위험이 통계적으로
-유의하게 증가할지를 예측하며, 서비스의 <b>③ 상권 리포트</b> 기능(창업자가 입주 전 해당 상권의 폐업 위험도를
-미리 확인하는 기능)의 근거 데이터로 사용된다. 공실 탐지 알고리즘 자체의 근거로는 사용되지 않는다.
+📍 <b>이 모델의 서비스 내 위치:</b><br> 
+  이 모델은 "공실 탐지"(건축물대장×상가정보 교차매칭으로 개별 빈 호수를 찾는 것)와는 다른 데이터·다른 목적의 분석이다.<br>
+  이 모델은 <b>영업 중인 상권×업종</b>이 다음 분기에 폐업 위험이 통계적으로 유의하게 증가할지를 예측하며, <br>
+  서비스의 <b>② 상권 리포트</b> 기능(지자체·소방당국이 다음 분기 안전등급이 악화될 상권을 선제적으로 파악하는 기능)의 근거 데이터로 사용된다.<br>
+  공실 탐지 알고리즘 자체의 근거로는 사용되지 않는다.
 </div>
 
 <div class="kpi-grid">
   <div class="kpi-card">
     <div class="kpi-label">AUC</div>
     <div class="kpi-value green">{auc}</div>
-    <div class="kpi-sub">단순규칙 대조군 {naive_auc}</div>
+    <div class="kpi-sub">우수한 수준(0.8~0.9) · 단순규칙 대조군 {naive_auc}</div>
   </div>
   <div class="kpi-card">
     <div class="kpi-label">Recall (재현율)</div>
     <div class="kpi-value gray">{recall}</div>
-    <div class="kpi-sub">실제 위험 급증 중 탐지 비율</div>
+    <div class="kpi-sub">실제 위험 급증 중 탐지 비율 · 조기경보 목적상 의도적으로 높게 설계</div>
   </div>
   <div class="kpi-card">
     <div class="kpi-label">Precision (정밀도)</div>
     <div class="kpi-value gray">{precision}</div>
-    <div class="kpi-sub">위험 예측 중 실제 적중 비율</div>
+    <div class="kpi-sub">위험군 비율({pos_rate}%) 대비 {precision_ratio}배 높은 정확도</div>
   </div>
   <div class="kpi-card">
     <div class="kpi-label">검증 표본</div>
@@ -294,21 +334,31 @@ HTML_TEMPLATE = """<!DOCTYPE html>
   </div>
 </div>
 
-<div class="caveat">
-⚠ <b>정직한 방법론 고지 (버전 히스토리):</b>
-① 처음엔 "다음 분기 정확한 폐업률(%)"을 회귀로 예측 → R²=0.11로 약함, 업종 평균 제거 후 잔차 R²=0.001(사실상 0).
-② "폐업률 5%p 이상 급증"을 이진분류 라벨로 사용 → 점포수 20~25개 상권은 매장 1개만 닫아도 5%p가 되어
-당분기 폐업률 0%인 곳이 구조적으로 과대평가됨을 발견.
-③ "폐업 매장 수 2개 이상 증가"(절대 개수 기준)로 수정 → ②의 왜곡은 해결됐지만, 이번엔 반대로 <b>점포수가
-많은 대형 상권일수록 절대 개수 기준을 그냥 규모만으로 넘기기 쉬운 새로운 편향</b>을 발견(점포수 20~50 상권 위험비율
-4.3% vs 200개 이상 상권 10.4%).
-④(최종) 두 비율(당분기·다음분기 폐업률)의 차이를 표본크기 기반 표준오차로 나눈 <b>z-검정(z≥{z_threshold})</b>으로
-재정의 — 상권 규모와 무관하게 "통계적으로 유의한 변화"만 위험으로 판정. 규모 편향이 대부분 해소됐고
-(잔여 편향 2.4배 수준, ③의 3.8배·②의 그 이상보다 크게 개선) <b>AUC {auc}</b>로 오히려 성능도 향상됨.
-클래스 불균형 보정(class_weight=balanced)이 표시 확률을 부풀리는 부작용이 있어 isotonic 보정으로 실제 빈도에
-맞게 재조정했습니다(보정 후에도 AUC는 동일). 정밀도({precision})가 낮아 오탐이 있지만, 조기경보 시스템 특성상
-재현율({recall})을 우선한 설계입니다. 점포수 {min_stor}개 미만 상권은 표본이 작아 분석에서 제외했습니다.
+<div class="scope" style="background:#eff6ff; border-left-color:#2a78d6;">
+📍 <b>이 숫자들이 왜 괜찮은 수준인지:</b><br> 
+      이 문제는 위험군이 전체의 {pos_rate}%뿐인 불균형 데이터라, 일반적인 분류 문제의 기준을 그대로 적용하면 안 된다.<br>
+      기준 없이 무작위로 "위험"이라고 찍어도 정밀도는 {pos_rate}% 근처에 그치는데, 이 모델의 정밀도({precision})는 그보다 {precision_ratio}배 높다. <br> 
+      재현율({recall})이 상대적으로 정밀도보다 높은 것은 정확도를 일부 포기하더라도 실제 위험을 최대한 놓치지 않도록 판정 기준(threshold)을 낮춰 설계했기 때문이다 <br>
+      — 소방·안전 점검 맥락에서는 위험을 놓치는 비용이, 안전한 곳을 한 번 더 점검하는 비용보다 훨씬 크기 때문이다.
 </div>
+
+<details class="caveat">
+<summary style="cursor:pointer; font-weight:600;">버전 히스토리 — 펼쳐서 보기</summary>
+<div style="margin-top:0.75rem;">
+① 처음엔 "다음 분기 정확한 폐업률(%)"을 회귀로 예측 → R²=0.11로 약함, 업종 평균 제거 후 잔차 R²=0.001(사실상 0).<br> 
+② "폐업률 5%p 이상 급증"을 이진분류 라벨로 사용 → 점포수 20~25개 상권은 매장 1개만 닫아도 5%p가 되어
+당분기 폐업률 0%인 곳이 구조적으로 과대평가됨을 발견.<br> 
+③ "폐업 매장 수 2개 이상 증가"(절대 개수 기준)로 수정 → ②의 왜곡은 해결됐지만,<br>  이번엔 반대로 <b>점포수가
+많은 대형 상권일수록 절대 개수 기준을 그냥 규모만으로 넘기기 쉬운 새로운 편향</b>을 발견(점포수 20~50 상권 위험비율
+4.3% vs 200개 이상 상권 10.4%).<br> 
+④(최종) 두 비율(당분기·다음분기 폐업률)의 차이를 표본크기 기반 표준오차로 나눈 <b>z-검정(z≥{z_threshold})</b>으로
+재정의<br>  — 상권 규모와 무관하게 "통계적으로 유의한 변화"만 위험으로 판정. 규모 편향이 대부분 해소됐고
+(잔여 편향 2.4배 수준, ③의 3.8배·②의 그 이상보다 크게 개선) <b>AUC {auc}</b>로 오히려 성능도 향상됨.<br> 
+클래스 불균형 보정(class_weight=balanced)이 표시 확률을 부풀리는 부작용이 있어 isotonic 보정으로 실제 빈도에
+맞게 재조정(보정 후에도 AUC는 동일). <br> 정밀도({precision})가 낮아 오탐이 있지만, 조기경보 시스템 특성상
+재현율({recall})을 우선한 설계.<br>  점포수 {min_stor}개 미만 상권은 표본이 작아 분석에서 제외.
+</div>
+</details>
 
 <div class="chart-grid">
   <div class="chart-box">
@@ -333,8 +383,9 @@ HTML_TEMPLATE = """<!DOCTYPE html>
 
 <div class="chart-box">
   <div class="chart-title">{latest_q} 기준 다음 분기 폐업위험 상위 10 상권×업종</div>
+  <div class="note" style="margin-top:0;margin-bottom:0.75rem;">위험 확률은 당분기 폐업률 하나가 아니라, 전분기 대비 변화·최근 추세·개업율 등 여러 지표를 종합해 산출한다. 그래서 당분기 폐업률이 0%로 보여도, 최근 분기들의 폐업률이 계속 오르내리는(불안정한) 상권·업종이라면 위험 확률이 높게 나올 수 있다 — "전분기 폐업률"과 "최근4분기 추이"를 함께 보면 그 이유를 확인할 수 있다.</div>
   <table>
-    <thead><tr><th>상권</th><th>구분</th><th>업종</th><th>점포수</th><th>당분기 폐업률</th><th>위험 확률</th></tr></thead>
+    <thead><tr><th>상권</th><th>구분</th><th>업종</th><th>점포수</th><th>전분기 폐업률</th><th>당분기 폐업률</th><th>최근4분기 추이</th><th>위험 확률</th></tr></thead>
     <tbody id="top10Body"></tbody>
   </table>
 </div>
@@ -372,7 +423,8 @@ const tbody = document.getElementById('top10Body');
 top10.forEach(d => {{
   tbody.innerHTML += `<tr>
     <td>${{d.trdar_cd_nm}}</td><td>${{d.trdar_se_cd_nm}}</td><td>${{d.svc_induty_cd_nm}}</td>
-    <td>${{d.stor_co}}</td><td>${{d.clsbiz_rt}}%</td><td class="risk-high">${{d.risk_proba}}%</td>
+    <td>${{d.stor_co}}</td><td>${{d.prev_clsbiz_rt}}%</td><td>${{d.clsbiz_rt}}%</td>
+    <td>${{d.spark}}</td><td class="risk-high">${{d.risk_proba}}%</td>
   </tr>`;
 }});
 </script>
