@@ -25,23 +25,15 @@
 노후 대형상가는 점포수 시계열로 대안 진단해 안전관리 우선순위 등급(A~D)을 산출합니다.
 </div>
 
-<div class="section-title">1단계 핵심 — 안전등급 진단</div>
+<div class="section-title">배경 — 현황 및 문제점</div>
 <div class="card-list">
-  <a class="card" href="html/역산공실탐지기반_안전등급지도.html">
-    <div class="card-name">안전등급 지도 (메인 화면)</div>
-    <div class="card-desc">서울시 노후 대형상가·전통시장 48곳의 A~D 안전등급을 실제 지도 위에 표시</div>
-  </a>
-  <a class="card" href="html/역산공실탐지기반_안전등급모델.html">
-    <div class="card-name">안전등급 모델</div>
-    <div class="card-desc">점포수 순증감률 + 폐업률 결합, 절대기준 산출 근거 (D6·C16·B16·A10)</div>
-  </a>
-  <a class="card" href="html/역산공실탐지기반_대안알고리즘.html">
-    <div class="card-name">대안 알고리즘</div>
-    <div class="card-desc">건축물대장 매칭이 안 되는 노후 대형상가 48곳 점포수 시계열 분석</div>
+  <a class="card" href="html/역산공실탐지기반_대시보드.html">
+    <div class="card-name">대시보드 [그림1]</div>
+    <div class="card-desc">전국 공실률·임대료 현황, 노후건축물 비율 추이(2005~2024), 노후상가 관리 사각지대 문제 개요</div>
   </a>
 </div>
 
-<div class="section-title">공실 탐지 로직 검증</div>
+<div class="section-title">핵심 알고리즘 ①② — 실 API 연동 검증 및 구조적 한계 발견</div>
 <div class="card-list">
   <a class="card" href="html/역산공실탐지기반_실측검증요약.html">
     <div class="card-name">실측 검증 요약</div>
@@ -49,12 +41,48 @@
   </a>
 </div>
 
-<div class="section-title">현황·확장 근거</div>
+<div class="section-title">핵심 알고리즘 ③ — 대안 지표</div>
 <div class="card-list">
-  <a class="card" href="html/역산공실탐지기반_대시보드.html">
-    <div class="card-name">대시보드</div>
-    <div class="card-desc">전국 공실률·임대료 현황, 노후상가 관리 사각지대 문제 개요</div>
+  <a class="card" href="html/역산공실탐지기반_대안알고리즘.html">
+    <div class="card-name">대안 알고리즘</div>
+    <div class="card-desc">건축물대장 매칭이 안 되는 노후 대형상가 48곳 점포수 시계열 분석</div>
   </a>
+</div>
+
+<div class="section-title">핵심 알고리즘 ④ — 통합 안전관리 우선순위 등급 산출</div>
+<div class="card-list">
+  <a class="card" href="html/역산공실탐지기반_안전등급모델.html">
+    <div class="card-name">안전등급 모델</div>
+    <div class="card-desc">점포수 순증감률 + 폐업률 결합, 절대기준 산출 근거 (D6·C16·B16·A10)</div>
+  </a>
+</div>
+
+<div class="section-title">주요 기능 ① — 안전등급 지도 (메인 화면, 1단계 핵심)</div>
+<div class="card-list">
+  <a class="card" href="html/역산공실탐지기반_안전등급지도.html">
+    <div class="card-name">안전등급 지도 (메인 화면)</div>
+    <div class="card-desc">서울시 노후 대형상가·전통시장 48곳의 A~D 안전등급을 실제 지도 위에 표시</div>
+  </a>
+</div>
+
+<div class="section-title">주요 기능 ② — 상권 리포트</div>
+<div class="card-list">
+  <a class="card" href="html/역산공실탐지기반_폐업예측모델_수정본.html">
+    <div class="card-name">폐업위험 조기경보 모델</div>
+    <div class="card-desc">Random Forest + 두 비율 z-검정, AUC 0.881</div>
+  </a>
+</div>
+
+<div class="section-title">주요 기능 ③ — 의심건물 스크리닝 리포트 (2단계)</div>
+<div class="card-list">
+  <a class="card" href="html/역산공실탐지기반_의심건물스크리닝.html">
+    <div class="card-name">의심건물 스크리닝 리포트</div>
+    <div class="card-desc">1단계 실측 데이터(303개 건물)를 재활용해 등록-실제 불일치 격차·배율 기반 확인 우선순위 산출</div>
+  </a>
+</div>
+
+<div class="section-title">발전 가능성 — 확장 근거</div>
+<div class="card-list">
   <a class="card" href="html/역산공실탐지기반_클러스터링.html">
     <div class="card-name">지역별 클러스터링</div>
     <div class="card-desc">K-Means로 전국 17개 시도 공실 위험도 분류 (고위험10·중위험6·저위험1)</div>
@@ -62,18 +90,6 @@
   <a class="card" href="html/역산공실탐지기반_산업단지가동률.html">
     <div class="card-name">산업단지 가동률 분석</div>
     <div class="card-desc">"등록정보-실제운영 불일치" 패턴이 산업단지에서도 재현됨을 확인 (확장 가능성 근거)</div>
-  </a>
-  <a class="card" href="html/역산공실탐지기반_폐업예측모델_수정본.html">
-    <div class="card-name">폐업위험 조기경보 모델</div>
-    <div class="card-desc">Random Forest + 두 비율 z-검정, AUC 0.881</div>
-  </a>
-</div>
-
-<div class="section-title">2단계 — 의심건물 스크리닝</div>
-<div class="card-list">
-  <a class="card" href="html/역산공실탐지기반_의심건물스크리닝.html">
-    <div class="card-name">의심건물 스크리닝 리포트</div>
-    <div class="card-desc">1단계 실측 데이터(303개 건물)를 재활용해 등록-실제 불일치 격차·배율 기반 확인 우선순위 산출</div>
   </a>
 </div>
 
