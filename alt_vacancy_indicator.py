@@ -169,6 +169,33 @@ def analyze():
 # HTML (analyze() 결과 받아서 역산공실탐지기반_대안알고리즘.html로 뽑음)
 import json
 
+
+def _sparkline_svg(values: list, width: int = 120, height: int = 28) -> str:
+    """분기별 점포수 추이를 작은 라인 스파크라인 SVG로 그림.
+    (이 행 안에서만 상대적인 min~max로 정규화 — 절대값 비교용이 아니라
+    '언제 줄고 언제 멈췄는지' 형태만 보여주기 위한 용도)
+    """
+    if not values or len(values) < 2:
+        return ""
+    vmin, vmax = min(values), max(values)
+    rng = (vmax - vmin) or 1
+    n = len(values)
+    pts = []
+    for i, v in enumerate(values):
+        x = round(i / (n - 1) * (width - 4) + 2, 1)
+        y = round(height - 2 - (v - vmin) / rng * (height - 4), 1)
+        pts.append(f"{x},{y}")
+    points_str = " ".join(pts)
+    last_x, last_y = pts[-1].split(",")
+    color = "#e34948" if values[-1] < values[0] else "#3b6d11"
+    return (
+        f'<svg width="{width}" height="{height}" viewBox="0 0 {width} {height}">'
+        f'<polyline points="{points_str}" fill="none" stroke="{color}" stroke-width="1.5"/>'
+        f'<circle cx="{last_x}" cy="{last_y}" r="2" fill="{color}"/>'
+        f'</svg>'
+    )
+
+
 def generate(result: dict) -> str:
     summary = result['summary']
     markets = result['markets']
@@ -200,11 +227,13 @@ def generate(result: dict) -> str:
     rows_html = ""
     for s in summary:
         risk_class = {'고위험': 'risk-high', '중위험': 'risk-mid', '저위험': 'risk-low'}[s['risk_level']]
+        spark = _sparkline_svg(markets[s['name']]['total_stores'])
         rows_html += f"""<tr>
             <td>{s['name']}</td>
             <td class="{risk_class}">{s['net_change_pct']:+.1f}%</td>
             <td>{s['latest_total']:,}</td>
             <td>{s['recent_close_rate_avg']}%</td>
+            <td>{spark}</td>
             <td class="{risk_class}">{s['risk_level']}</td>
         </tr>"""
 
@@ -283,9 +312,10 @@ def generate(result: dict) -> str:
 <div class="chart-box">
   <div class="chart-title">전체 상세 — 노후 대형상가 공실위험 지표</div>
   <table>
-    <thead><tr><th>상권명</th><th>점포수 순증감률</th><th>최근 점포수</th><th>최근4분기 평균폐업률</th><th>위험도</th></tr></thead>
+    <thead><tr><th>상권명</th><th>점포수 순증감률</th><th>최근 점포수</th><th>최근4분기 평균폐업률</th><th>20분기 추이(2021~2025)</th><th>위험도</th></tr></thead>
     <tbody>{rows_html}</tbody>
   </table>
+  <div class="note" style="margin-top:0.75rem;">※ "20분기 추이"는 각 행별 최소~최대 범위 내 상대적 변화만 보여주는 스파크라인이다(행 간 절대비교용이 아님). 위험도는 최근4분기 폐업률이 아니라 전체 기간(2021 1분기~2025 4분기) 점포수 순증감률로 판정하므로, 하락이 과거에 집중되고 최근엔 이미 바닥까지 줄어 안정된 상권(예: 신림종합시장)은 최근폐업률이 0%여도 고위험으로 분류될 수 있다.</div>
 </div>
 
 <div class="note">
