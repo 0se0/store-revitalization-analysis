@@ -39,10 +39,10 @@
 
 <div class="caveat">
 📍 <b>위치 정확도 안내:</b> 지도에 표시된 안전등급(D~A)과 위험점수는 `risk_grade_model.py`가 48개 상권의 실측 데이터로 계산한 결과 그대로다.<br>
-다만 마커의 정확한 좌표(위경도)는 각 상권이 위치한 동/구의 중심점으로 표시한 근사치이며, 실제 건물의 정밀 주소 좌표는 아니다. <br>
+다만 마커의 정확한 좌표(위경도)는 각 상권이 위치한 동/구의 중심점으로 표시한 근사치이며, 실제 건물의 정밀 주소 좌표는 아니다. 자치구 표기도 상권명 기준으로 통상 알려진 행정구역이며, 정밀 지번 대조 결과는 아니다.<br>
 (예: 동대문상가 A~D동은 실제로 같은 복합건물 내 동(wing) 구분이라 근사치로도 위치가 크게 다르지 않지만, 일부 인접 건물은 정밀도가 떨어질 수 있다.)<br>
 지도 자체는 실제 OpenStreetMap 타일을 사용한다.(Leaflet.js) 실 서비스 단계에서는 상가정보 API의 정확한 위경도(lon/lat) 필드로 교체할 예정이다.<br>
-건물 준공연도·공실 추정 현황은 상권 단위 데이터로는 산출이 어려워 이번 프로토타입에는 포함하지 않았다(향후 건물 단위 데이터 확보 시 반영 예정).
+건물 준공연도·공실 추정 현황은 상권 단위 데이터로는 산출이 어려워 이번 프로토타입에는 포함하지 않았다(향후 건물 단위 실측 데이터 확보 시 반영 예정).
 </div>
 
 <div class="layout">
@@ -55,7 +55,20 @@
       <div class="legend-row" data-grade="C"><div class="legend-dot" style="background:#f59e0b;"></div>C — 우선 점검 권고</div>
       <div class="legend-row" data-grade="B"><div class="legend-dot" style="background:#2a78d6;"></div>B — 정기 모니터링</div>
       <div class="legend-row" data-grade="A"><div class="legend-dot" style="background:#3b6d11;"></div>A — 양호</div>
-      <div class="filter-hint">등급을 클릭하면 지도에서 켜고 끌 수 있습니다</div>
+      <div class="filter-hint" style="border-top:none; border-bottom:1px solid #e8e7e2; padding-top:4px; padding-bottom:8px; margin-top:4px; margin-bottom:10px;">
+        등급을 클릭하면 지도에서 켜고 끌 수 있습니다.
+      </div>
+
+        <div>
+        <div style="font-weight:600; margin-bottom:6px;">지역(자치구)</div>
+        <div class="filter-hint" style="border-top:none; margin-top:0; padding-top:0;">
+          지역 필터는 종로구(11곳)·중구(10곳)가 가장 많습니다.<br> 
+          일부 자치구는 상권이 1~3곳뿐이라, 등급 필터와 겹치면 마커가 안 보일 수 있습니다.
+        </div><br> 
+        <select id="districtFilter" style="width:100%; font-size:11px; padding:4px; border-radius:4px; border:1px solid #d3d1c7;">
+          <option value="ALL">전체 보기</option>
+        </select>
+      </div>
     </div>
   </div>
   <div class="side-panel">
@@ -80,15 +93,17 @@
 
 <div class="note">
 ※ 방법론: 점포수 순증감률(2021~2025, 서울시 상권분석서비스)과 최근4분기 평균폐업률을 결합해 위험점수(0~100)
-산출, 절대기준 고정 임계값(60점 이상 D, 40~60 C, 20~40 B, 20미만 A)으로 48곳을 등급 분류
-(D 6곳·C 16곳·B 16곳·A 10곳). 상세 산출 근거는 `역산공실탐지기반_안전등급모델.html` 참고.
+산출,<br< 절대기준 고정 임계값(60점 이상 D, 40~60 C, 20~40 B, 20미만 A)으로 48곳을 등급 분류
+(D 6곳·C 16곳·B 16곳·A 10곳).<br> 상세 산출 근거는 `역산공실탐지기반_안전등급모델.html` 참고.
 지도 타일: © OpenStreetMap contributors.
 </div>
 
 <script>
-const markers = [{"name": "중랑동부시장(중랑교종합상가)", "grade": "D", "score": 84.2, "net_change": -12.5, "close_rate": 6.7, "lat": 37.6063, "lng": 127.0925, "color": "#e34948"}, {"name": "동대문상가C동", "grade": "D", "score": 78.8, "net_change": -29.6, "close_rate": 3.6, "lat": 37.5701, "lng": 126.9986, "color": "#e34948"}, {"name": "화곡중앙시장", "grade": "D", "score": 77.7, "net_change": -15.6, "close_rate": 5.1, "lat": 37.5417, "lng": 126.8402, "color": "#e34948"}, {"name": "청계천공구상가", "grade": "D", "score": 73.9, "net_change": -21.2, "close_rate": 3.5, "lat": 37.5701, "lng": 126.995, "color": "#e34948"}, {"name": "평화시장(남평화시장, 제일평화시장, 신평화패션타운)", "grade": "D", "score": 63.2, "net_change": -18.9, "close_rate": 2.4, "lat": 37.5705, "lng": 126.9995, "color": "#e34948"}, {"name": "테크노상가(엘리시움)", "grade": "D", "score": 62.6, "net_change": -20.6, "close_rate": 2.1, "lat": 37.529, "lng": 126.966, "color": "#e34948"}, {"name": "동대문상가A동", "grade": "C", "score": 59.6, "net_change": -14.9, "close_rate": 2.5, "lat": 37.5701, "lng": 126.9986, "color": "#f59e0b"}, {"name": "동대문패션타운 관광특구", "grade": "C", "score": 58.5, "net_change": -15.4, "close_rate": 2.3, "lat": 37.5701, "lng": 126.9986, "color": "#f59e0b"}, {"name": "청평화시장", "grade": "C", "score": 57.9, "net_change": -14.1, "close_rate": 2.4, "lat": 37.5705, "lng": 126.9995, "color": "#f59e0b"}, {"name": "동대문상가D동", "grade": "C", "score": 57.5, "net_change": -15.2, "close_rate": 2.2, "lat": 37.5701, "lng": 126.9986, "color": "#f59e0b"}, {"name": "동평화시장", "grade": "C", "score": 56.9, "net_change": -14.0, "close_rate": 2.3, "lat": 37.5705, "lng": 126.9995, "color": "#f59e0b"}, {"name": "청량리전통시장", "grade": "C", "score": 56.4, "net_change": -7.1, "close_rate": 3.2, "lat": 37.5807, "lng": 127.0455, "color": "#f59e0b"}, {"name": "영등포전통시장", "grade": "C", "score": 54.0, "net_change": -12.8, "close_rate": 2.1, "lat": 37.5163, "lng": 126.9068, "color": "#f59e0b"}, {"name": "광장시장(광장전통시장)", "grade": "C", "score": 50.5, "net_change": -10.5, "close_rate": 2.0, "lat": 37.5701, "lng": 127.001, "color": "#f59e0b"}, {"name": "용산전자상가(용산역)", "grade": "C", "score": 50.1, "net_change": -13.1, "close_rate": 1.6, "lat": 37.5296, "lng": 126.9648, "color": "#f59e0b"}, {"name": "신림종합시장", "grade": "C", "score": 50.0, "net_change": -45.0, "close_rate": 0.0, "lat": 37.4845, "lng": 126.9296, "color": "#f59e0b"}, {"name": "노량진중앙시장", "grade": "C", "score": 47.5, "net_change": 12.2, "close_rate": 6.6, "lat": 37.5135, "lng": 126.9427, "color": "#f59e0b"}, {"name": "삼익패션타운(남대문시장)", "grade": "C", "score": 44.8, "net_change": -9.8, "close_rate": 1.4, "lat": 37.5592, "lng": 126.9784, "color": "#f59e0b"}, {"name": "남대문시장(자유상가)", "grade": "C", "score": 44.8, "net_change": -8.3, "close_rate": 1.6, "lat": 37.5592, "lng": 126.9784, "color": "#f59e0b"}, {"name": "성동용답상가시장", "grade": "C", "score": 44.1, "net_change": -5.0, "close_rate": 2.6, "lat": 37.5637, "lng": 127.0475, "color": "#f59e0b"}, {"name": "세운상가가동", "grade": "C", "score": 43.3, "net_change": -9.2, "close_rate": 1.3, "lat": 37.5701, "lng": 126.9917, "color": "#f59e0b"}, {"name": "동대문상가B동", "grade": "C", "score": 41.6, "net_change": -13.0, "close_rate": 0.6, "lat": 37.5701, "lng": 126.9986, "color": "#f59e0b"}, {"name": "영등포유통상가", "grade": "B", "score": 38.5, "net_change": -5.5, "close_rate": 1.7, "lat": 37.517, "lng": 126.906, "color": "#2a78d6"}, {"name": "중부시장(신중부시장)", "grade": "B", "score": 38.2, "net_change": -6.1, "close_rate": 1.4, "lat": 37.5651, "lng": 126.9945, "color": "#2a78d6"}, {"name": "창동신창시장", "grade": "B", "score": 33.1, "net_change": -1.8, "close_rate": 2.9, "lat": 37.6534, "lng": 127.0473, "color": "#2a78d6"}, {"name": "숭례문수입상가(남대문시장)", "grade": "B", "score": 30.4, "net_change": -5.1, "close_rate": 0.9, "lat": 37.5592, "lng": 126.9784, "color": "#2a78d6"}, {"name": "길음시장", "grade": "B", "score": 29.9, "net_change": -5.4, "close_rate": 0.7, "lat": 37.6068, "lng": 127.0254, "color": "#2a78d6"}, {"name": "가락시장", "grade": "B", "score": 29.5, "net_change": -5.1, "close_rate": 0.8, "lat": 37.4924, "lng": 127.1185, "color": "#2a78d6"}, {"name": "상계중앙시장", "grade": "B", "score": 27.5, "net_change": 4.1, "close_rate": 3.4, "lat": 37.66, "lng": 127.073, "color": "#2a78d6"}, {"name": "정릉시장", "grade": "B", "score": 26.2, "net_change": 2.9, "close_rate": 3.2, "lat": 37.6094, "lng": 127.008, "color": "#2a78d6"}, {"name": "사당시장", "grade": "B", "score": 26.2, "net_change": 14.3, "close_rate": 3.2, "lat": 37.4766, "lng": 126.9816, "color": "#2a78d6"}, {"name": "쌍문시장(쌍문역골목시장)", "grade": "B", "score": 25.0, "net_change": 3.7, "close_rate": 3.0, "lat": 37.6486, "lng": 127.0347, "color": "#2a78d6"}, {"name": "남성사계시장(남성시장)", "grade": "B", "score": 24.1, "net_change": 1.9, "close_rate": 2.9, "lat": 37.487, "lng": 126.975, "color": "#2a78d6"}, {"name": "봉천중앙시장", "grade": "B", "score": 23.4, "net_change": 6.0, "close_rate": 2.8, "lat": 37.4823, "lng": 126.9522, "color": "#2a78d6"}, {"name": "신설종합시장", "grade": "B", "score": 23.4, "net_change": 80.0, "close_rate": 2.8, "lat": 37.5758, "lng": 127.0224, "color": "#2a78d6"}, {"name": "황학동벼룩시장", "grade": "B", "score": 21.4, "net_change": -2.1, "close_rate": 1.3, "lat": 37.572, "lng": 127.016, "color": "#2a78d6"}, {"name": "영등포시장기계공구상가", "grade": "B", "score": 20.0, "net_change": 2.8, "close_rate": 2.4, "lat": 37.5158, "lng": 126.9075, "color": "#2a78d6"}, {"name": "답십리 건축자재시장", "grade": "B", "score": 20.0, "net_change": 5.2, "close_rate": 2.4, "lat": 37.5713, "lng": 127.045, "color": "#2a78d6"}, {"name": "동묘시장(동묘벼룩시장)", "grade": "A", "score": 19.1, "net_change": 16.4, "close_rate": 2.3, "lat": 37.573, "lng": 127.0165, "color": "#3b6d11"}, {"name": "경동시장", "grade": "A", "score": 17.5, "net_change": 4.8, "close_rate": 2.1, "lat": 37.5825, "lng": 127.0388, "color": "#3b6d11"}, {"name": "자양골목전통시장(자양골목시장)", "grade": "A", "score": 17.5, "net_change": 10.5, "close_rate": 2.1, "lat": 37.535, "lng": 127.079, "color": "#3b6d11"}, {"name": "신림중앙시장(조원동 펭귄시장)", "grade": "A", "score": 16.6, "net_change": 2.8, "close_rate": 2.0, "lat": 37.4845, "lng": 126.9296, "color": "#3b6d11"}, {"name": "수유전통시장(수유시장, 수유골목시장)", "grade": "A", "score": 16.6, "net_change": 3.1, "close_rate": 2.0, "lat": 37.6376, "lng": 127.0257, "color": "#3b6d11"}, {"name": "동대문종합시장(동대문종합시장 신관, 동대문종합시장D동상가)", "grade": "A", "score": 15.0, "net_change": 0.3, "close_rate": 1.8, "lat": 37.5701, "lng": 126.9986, "color": "#3b6d11"}, {"name": "방산종합시장(방산시장)", "grade": "A", "score": 15.0, "net_change": 2.6, "close_rate": 1.8, "lat": 37.5695, "lng": 126.9975, "color": "#3b6d11"}, {"name": "통인시장", "grade": "A", "score": 15.0, "net_change": 15.7, "close_rate": 1.8, "lat": 37.5807, "lng": 126.97, "color": "#3b6d11"}, {"name": "청량리종합시장", "grade": "A", "score": 11.7, "net_change": 4.6, "close_rate": 1.4, "lat": 37.5803, "lng": 127.0466, "color": "#3b6d11"}, {"name": "낙원시장(낙원지하시장(대일상가))", "grade": "A", "score": 11.0, "net_change": -1.7, "close_rate": 0.3, "lat": 37.573, "lng": 126.987, "color": "#3b6d11"}];
+const markers = [{"name": "중랑동부시장(중랑교종합상가)", "grade": "D", "score": 84.2, "net_change": -12.5, "close_rate": 6.7, "lat": 37.6063, "lng": 127.0925, "district": "중랑구", "color": "#e34948"}, {"name": "동대문상가C동", "grade": "D", "score": 78.8, "net_change": -29.6, "close_rate": 3.6, "lat": 37.5701, "lng": 126.9986, "district": "종로구", "color": "#e34948"}, {"name": "화곡중앙시장", "grade": "D", "score": 77.7, "net_change": -15.6, "close_rate": 5.1, "lat": 37.5417, "lng": 126.8402, "district": "강서구", "color": "#e34948"}, {"name": "청계천공구상가", "grade": "D", "score": 73.9, "net_change": -21.2, "close_rate": 3.5, "lat": 37.5701, "lng": 126.995, "district": "중구", "color": "#e34948"}, {"name": "평화시장(남평화시장, 제일평화시장, 신평화패션타운)", "grade": "D", "score": 63.2, "net_change": -18.9, "close_rate": 2.4, "lat": 37.5705, "lng": 126.9995, "district": "중구", "color": "#e34948"}, {"name": "테크노상가(엘리시움)", "grade": "D", "score": 62.6, "net_change": -20.6, "close_rate": 2.1, "lat": 37.529, "lng": 126.966, "district": "용산구", "color": "#e34948"}, {"name": "동대문상가A동", "grade": "C", "score": 59.6, "net_change": -14.9, "close_rate": 2.5, "lat": 37.5701, "lng": 126.9986, "district": "종로구", "color": "#f59e0b"}, {"name": "동대문패션타운 관광특구", "grade": "C", "score": 58.5, "net_change": -15.4, "close_rate": 2.3, "lat": 37.5701, "lng": 126.9986, "district": "종로구", "color": "#f59e0b"}, {"name": "청평화시장", "grade": "C", "score": 57.9, "net_change": -14.1, "close_rate": 2.4, "lat": 37.5705, "lng": 126.9995, "district": "중구", "color": "#f59e0b"}, {"name": "동대문상가D동", "grade": "C", "score": 57.5, "net_change": -15.2, "close_rate": 2.2, "lat": 37.5701, "lng": 126.9986, "district": "종로구", "color": "#f59e0b"}, {"name": "동평화시장", "grade": "C", "score": 56.9, "net_change": -14.0, "close_rate": 2.3, "lat": 37.5705, "lng": 126.9995, "district": "중구", "color": "#f59e0b"}, {"name": "청량리전통시장", "grade": "C", "score": 56.4, "net_change": -7.1, "close_rate": 3.2, "lat": 37.5807, "lng": 127.0455, "district": "동대문구", "color": "#f59e0b"}, {"name": "영등포전통시장", "grade": "C", "score": 54.0, "net_change": -12.8, "close_rate": 2.1, "lat": 37.5163, "lng": 126.9068, "district": "영등포구", "color": "#f59e0b"}, {"name": "광장시장(광장전통시장)", "grade": "C", "score": 50.5, "net_change": -10.5, "close_rate": 2.0, "lat": 37.5701, "lng": 127.001, "district": "종로구", "color": "#f59e0b"}, {"name": "용산전자상가(용산역)", "grade": "C", "score": 50.1, "net_change": -13.1, "close_rate": 1.6, "lat": 37.5296, "lng": 126.9648, "district": "용산구", "color": "#f59e0b"}, {"name": "신림종합시장", "grade": "C", "score": 50.0, "net_change": -45.0, "close_rate": 0.0, "lat": 37.4845, "lng": 126.9296, "district": "관악구", "color": "#f59e0b"}, {"name": "노량진중앙시장", "grade": "C", "score": 47.5, "net_change": 12.2, "close_rate": 6.6, "lat": 37.5135, "lng": 126.9427, "district": "동작구", "color": "#f59e0b"}, {"name": "삼익패션타운(남대문시장)", "grade": "C", "score": 44.8, "net_change": -9.8, "close_rate": 1.4, "lat": 37.5592, "lng": 126.9784, "district": "중구", "color": "#f59e0b"}, {"name": "남대문시장(자유상가)", "grade": "C", "score": 44.8, "net_change": -8.3, "close_rate": 1.6, "lat": 37.5592, "lng": 126.9784, "district": "중구", "color": "#f59e0b"}, {"name": "성동용답상가시장", "grade": "C", "score": 44.1, "net_change": -5.0, "close_rate": 2.6, "lat": 37.5637, "lng": 127.0475, "district": "성동구", "color": "#f59e0b"}, {"name": "세운상가가동", "grade": "C", "score": 43.3, "net_change": -9.2, "close_rate": 1.3, "lat": 37.5701, "lng": 126.9917, "district": "종로구", "color": "#f59e0b"}, {"name": "동대문상가B동", "grade": "C", "score": 41.6, "net_change": -13.0, "close_rate": 0.6, "lat": 37.5701, "lng": 126.9986, "district": "종로구", "color": "#f59e0b"}, {"name": "영등포유통상가", "grade": "B", "score": 38.5, "net_change": -5.5, "close_rate": 1.7, "lat": 37.517, "lng": 126.906, "district": "영등포구", "color": "#2a78d6"}, {"name": "중부시장(신중부시장)", "grade": "B", "score": 38.2, "net_change": -6.1, "close_rate": 1.4, "lat": 37.5651, "lng": 126.9945, "district": "중구", "color": "#2a78d6"}, {"name": "창동신창시장", "grade": "B", "score": 33.1, "net_change": -1.8, "close_rate": 2.9, "lat": 37.6534, "lng": 127.0473, "district": "도봉구", "color": "#2a78d6"}, {"name": "숭례문수입상가(남대문시장)", "grade": "B", "score": 30.4, "net_change": -5.1, "close_rate": 0.9, "lat": 37.5592, "lng": 126.9784, "district": "중구", "color": "#2a78d6"}, {"name": "길음시장", "grade": "B", "score": 29.9, "net_change": -5.4, "close_rate": 0.7, "lat": 37.6068, "lng": 127.0254, "district": "성북구", "color": "#2a78d6"}, {"name": "가락시장", "grade": "B", "score": 29.5, "net_change": -5.1, "close_rate": 0.8, "lat": 37.4924, "lng": 127.1185, "district": "송파구", "color": "#2a78d6"}, {"name": "상계중앙시장", "grade": "B", "score": 27.5, "net_change": 4.1, "close_rate": 3.4, "lat": 37.66, "lng": 127.073, "district": "노원구", "color": "#2a78d6"}, {"name": "정릉시장", "grade": "B", "score": 26.2, "net_change": 2.9, "close_rate": 3.2, "lat": 37.6094, "lng": 127.008, "district": "성북구", "color": "#2a78d6"}, {"name": "사당시장", "grade": "B", "score": 26.2, "net_change": 14.3, "close_rate": 3.2, "lat": 37.4766, "lng": 126.9816, "district": "동작구", "color": "#2a78d6"}, {"name": "쌍문시장(쌍문역골목시장)", "grade": "B", "score": 25.0, "net_change": 3.7, "close_rate": 3.0, "lat": 37.6486, "lng": 127.0347, "district": "도봉구", "color": "#2a78d6"}, {"name": "남성사계시장(남성시장)", "grade": "B", "score": 24.1, "net_change": 1.9, "close_rate": 2.9, "lat": 37.487, "lng": 126.975, "district": "동작구", "color": "#2a78d6"}, {"name": "봉천중앙시장", "grade": "B", "score": 23.4, "net_change": 6.0, "close_rate": 2.8, "lat": 37.4823, "lng": 126.9522, "district": "관악구", "color": "#2a78d6"}, {"name": "신설종합시장", "grade": "B", "score": 23.4, "net_change": 80.0, "close_rate": 2.8, "lat": 37.5758, "lng": 127.0224, "district": "동대문구", "color": "#2a78d6"}, {"name": "황학동벼룩시장", "grade": "B", "score": 21.4, "net_change": -2.1, "close_rate": 1.3, "lat": 37.572, "lng": 127.016, "district": "중구", "color": "#2a78d6"}, {"name": "영등포시장기계공구상가", "grade": "B", "score": 20.0, "net_change": 2.8, "close_rate": 2.4, "lat": 37.5158, "lng": 126.9075, "district": "영등포구", "color": "#2a78d6"}, {"name": "답십리 건축자재시장", "grade": "B", "score": 20.0, "net_change": 5.2, "close_rate": 2.4, "lat": 37.5713, "lng": 127.045, "district": "동대문구", "color": "#2a78d6"}, {"name": "동묘시장(동묘벼룩시장)", "grade": "A", "score": 19.1, "net_change": 16.4, "close_rate": 2.3, "lat": 37.573, "lng": 127.0165, "district": "종로구", "color": "#3b6d11"}, {"name": "경동시장", "grade": "A", "score": 17.5, "net_change": 4.8, "close_rate": 2.1, "lat": 37.5825, "lng": 127.0388, "district": "동대문구", "color": "#3b6d11"}, {"name": "자양골목전통시장(자양골목시장)", "grade": "A", "score": 17.5, "net_change": 10.5, "close_rate": 2.1, "lat": 37.535, "lng": 127.079, "district": "광진구", "color": "#3b6d11"}, {"name": "신림중앙시장(조원동 펭귄시장)", "grade": "A", "score": 16.6, "net_change": 2.8, "close_rate": 2.0, "lat": 37.4845, "lng": 126.9296, "district": "관악구", "color": "#3b6d11"}, {"name": "수유전통시장(수유시장, 수유골목시장)", "grade": "A", "score": 16.6, "net_change": 3.1, "close_rate": 2.0, "lat": 37.6376, "lng": 127.0257, "district": "강북구", "color": "#3b6d11"}, {"name": "동대문종합시장(동대문종합시장 신관, 동대문종합시장D동상가)", "grade": "A", "score": 15.0, "net_change": 0.3, "close_rate": 1.8, "lat": 37.5701, "lng": 126.9986, "district": "종로구", "color": "#3b6d11"}, {"name": "방산종합시장(방산시장)", "grade": "A", "score": 15.0, "net_change": 2.6, "close_rate": 1.8, "lat": 37.5695, "lng": 126.9975, "district": "중구", "color": "#3b6d11"}, {"name": "통인시장", "grade": "A", "score": 15.0, "net_change": 15.7, "close_rate": 1.8, "lat": 37.5807, "lng": 126.97, "district": "종로구", "color": "#3b6d11"}, {"name": "청량리종합시장", "grade": "A", "score": 11.7, "net_change": 4.6, "close_rate": 1.4, "lat": 37.5803, "lng": 127.0466, "district": "동대문구", "color": "#3b6d11"}, {"name": "낙원시장(낙원지하시장(대일상가))", "grade": "A", "score": 11.0, "net_change": -1.7, "close_rate": 0.3, "lat": 37.573, "lng": 126.987, "district": "종로구", "color": "#3b6d11"}];
+const districts = ["강북구", "강서구", "관악구", "광진구", "노원구", "도봉구", "동대문구", "동작구", "성동구", "성북구", "송파구", "영등포구", "용산구", "종로구", "중구", "중랑구"];
 const gradeColors = { D: '#e34948', C: '#f59e0b', B: '#2a78d6', A: '#3b6d11' };
 const activeGrades = new Set(['D','C','B','A']);
+let activeDistrict = 'ALL';
 const circleByMarker = [];
 
 const map = L.map('mapArea').setView([37.5665, 126.9780], 11);
@@ -96,6 +111,25 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
   maxZoom: 18,
   attribution: '&copy; OpenStreetMap contributors'
 }).addTo(map);
+
+const districtSelect = document.getElementById('districtFilter');
+districts.forEach(d => {
+  const opt = document.createElement('option');
+  opt.value = d; opt.textContent = d;
+  districtSelect.appendChild(opt);
+});
+
+function applyFilters() {
+  circleByMarker.forEach(({ marker, circle }) => {
+    const gradeOk = activeGrades.has(marker.grade);
+    const districtOk = (activeDistrict === 'ALL') || (marker.district === activeDistrict);
+    if (gradeOk && districtOk) {
+      if (!map.hasLayer(circle)) circle.addTo(map);
+    } else {
+      if (map.hasLayer(circle)) map.removeLayer(circle);
+    }
+  });
+}
 
 markers.forEach(m => {
   const circle = L.circleMarker([m.lat, m.lng], {
@@ -105,12 +139,12 @@ markers.forEach(m => {
     weight: 1.5,
     fillOpacity: 0.9,
   }).addTo(map);
-  // [수정] 폐업률(close_rate)을 팝업에 추가 표시
-  circle.bindPopup(`<b>[${m.grade}] ${m.name}</b><br>위험점수 ${m.score} · 순증감 ${m.net_change}%<br>최근4분기 평균폐업률 ${m.close_rate}%`);
+  // 폐업률(close_rate)·자치구(district)를 팝업에 추가 표시
+  circle.bindPopup(`<b>[${m.grade}] ${m.name}</b><br>${m.district} · 위험점수 ${m.score} · 순증감 ${m.net_change}%<br>최근4분기 평균폐업률 ${m.close_rate}%`);
   circleByMarker.push({ marker: m, circle });
 });
 
-// [신규] 범례 클릭 시 해당 등급 마커 켜고 끄기
+// 범례 클릭 시 해당 등급 마커 켜고 끄기
 document.querySelectorAll('.legend-row').forEach(row => {
   row.addEventListener('click', () => {
     const grade = row.dataset.grade;
@@ -121,14 +155,14 @@ document.querySelectorAll('.legend-row').forEach(row => {
       activeGrades.add(grade);
       row.classList.remove('off');
     }
-    circleByMarker.forEach(({ marker, circle }) => {
-      if (activeGrades.has(marker.grade)) {
-        if (!map.hasLayer(circle)) circle.addTo(map);
-      } else {
-        if (map.hasLayer(circle)) map.removeLayer(circle);
-      }
-    });
+    applyFilters();
   });
+});
+
+// 자치구 드롭다운 필터
+districtSelect.addEventListener('change', () => {
+  activeDistrict = districtSelect.value;
+  applyFilters();
 });
 
 const dList = document.getElementById('dList');
