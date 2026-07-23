@@ -184,12 +184,12 @@ def generate(data: dict) -> str:
   <div class="kpi-card">
     <div class="kpi-label">전국 중대형 상가 공실률</div>
     <div class="kpi-value red">{kpi['vac_large_latest']:.1f}%</div>
-    <div class="kpi-sub">2026년 1분기 ↑ 24Q3 대비 {vac_chg_str}</div>
+    <div class="kpi-sub">2026년 1분기 ↑ 2024년 3분기 대비 {vac_chg_str}</div>
   </div>
   <div class="kpi-card">
     <div class="kpi-label">전국 소규모 상가 공실률</div>
     <div class="kpi-value red">{kpi['vac_small_latest']:.1f}%</div>
-    <div class="kpi-sub">2026년 1분기 ↑ 24Q3 대비 {vac_s_chg_str}</div>
+    <div class="kpi-sub">2026년 1분기 ↑ 2024년 3분기 대비 {vac_s_chg_str}</div>
   </div>
   <div class="kpi-card">
     <div class="kpi-label">전국 건축물 노후 비율</div>
