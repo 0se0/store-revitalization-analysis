@@ -26,10 +26,10 @@
   .note { font-size: 11px; color: #898781; margin-top: 1.5rem; line-height: 1.6; }
   .caveat { background: #fef2f2; border-left: 3px solid #e34948; padding: 0.75rem 1rem; font-size: 12px; color: #52514e; margin-bottom: 1.5rem; line-height: 1.6; }
   .scope { background: #eff6ff; border-left: 3px solid #2a78d6; padding: 0.75rem 1rem; font-size: 12px; color: #52514e; margin-bottom: 1.5rem; line-height: 1.6; }
-  .cm-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-top: 8px; }
-  .cm-cell { background: #f8f8f7; border-radius: 6px; padding: 10px; text-align: center; }
-  .cm-cell .n { font-size: 18px; font-weight: 600; }
-  .cm-cell .lbl { font-size: 10px; color: #898781; margin-top: 2px; }
+  .cm-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-top: 8px; height: calc(100% - 40px); align-content: center; }
+  .cm-cell { background: #f8f8f7; border-radius: 8px; padding: 20px 10px; text-align: center; display: flex; flex-direction: column; justify-content: center; }
+  .cm-cell .n { font-size: 34px; font-weight: 600; }
+  .cm-cell .lbl { font-size: 12px; color: #898781; margin-top: 6px; }
 </style>
 </head>
 <body>
@@ -37,10 +37,10 @@
 <div class="subtitle">Random Forest Classifier | 라벨: 두 비율 z-검정(z≥1.64)으로 판정한 "다음 분기 폐업률의 통계적으로 유의한 증가" 여부 | 데이터: 서울시 우리마을가게 상권분석서비스(2021~2025, 20개 분기)</div>
 
 <div class="scope">
-📍 <b>이 모델의 서비스 내 위치:</b><br> 
+📍 이 모델의 서비스 내 위치:<br> 
   이 모델은 "공실 탐지"(건축물대장×상가정보 교차매칭으로 개별 빈 호수를 찾는 것)와는 다른 데이터·다른 목적의 분석이다.<br>
-  이 모델은 <b>영업 중인 상권×업종</b>이 다음 분기에 폐업 위험이 통계적으로 유의하게 증가할지를 예측하며, <br>
-  서비스의 <b>② 상권 리포트</b> 기능(지자체·소방당국이 다음 분기 안전등급이 악화될 상권을 선제적으로 파악하는 기능)의 근거 데이터로 사용된다.<br>
+  이 모델은 영업 중인 상권×업종이 다음 분기에 폐업 위험이 통계적으로 유의하게 증가할지를 예측하며, <br>
+  서비스의 ② 상권 리포트 기능(지자체·소방당국이 다음 분기 안전등급이 악화될 상권을 선제적으로 파악하는 기능)의 근거 데이터로 사용된다.<br>
   공실 탐지 알고리즘 자체의 근거로는 사용되지 않는다.
 </div>
 
@@ -48,17 +48,18 @@
   <div class="kpi-card">
     <div class="kpi-label">AUC</div>
     <div class="kpi-value green">0.881</div>
-    <div class="kpi-sub">우수한 수준(0.8~0.9) · 단순규칙 대조군 0.183</div>
+    <div class="kpi-sub">우수한 수준(0.8~0.9)<br>단순규칙 대조군 0.183</div>
   </div>
   <div class="kpi-card">
     <div class="kpi-label">Recall (재현율)</div>
     <div class="kpi-value gray">0.662</div>
-    <div class="kpi-sub">실제 위험 급증 중 탐지 비율 · 조기경보 목적상 의도적으로 높게 설계</div>
+    <div class="kpi-sub">실제 위험 급증 중 탐지 비율<br>조기경보 목적상 의도적으로 높게 설계</div>
   </div>
   <div class="kpi-card">
     <div class="kpi-label">Precision (정밀도)</div>
     <div class="kpi-value gray">0.203</div>
-    <div class="kpi-sub">위험군 비율(5.4%) 대비 3.8배 높은 정확도</div>
+    <div class="kpi-sub">정밀도 퍼센트 환산시20.3%</div>
+    <div class="kpi-sub">위험군 비율(5.4%) 대비<br> 3.8배 높은 정확도</div>
   </div>
   <div class="kpi-card">
     <div class="kpi-label">검증 표본</div>
@@ -67,12 +68,15 @@
   </div>
 </div>
 
-<div class="scope" style="background:#eff6ff; border-left-color:#2a78d6;">
-📍 <b>이 숫자들이 왜 괜찮은 수준인지:</b><br> 
-      이 문제는 위험군이 전체의 5.4%뿐인 불균형 데이터라, 일반적인 분류 문제의 기준을 그대로 적용하면 안 된다.<br>
-      기준 없이 무작위로 "위험"이라고 찍어도 정밀도는 5.4% 근처에 그치는데, 이 모델의 정밀도(0.203)는 그보다 3.8배 높다. <br> 
-      재현율(0.662)이 상대적으로 정밀도보다 높은 것은 정확도를 일부 포기하더라도 실제 위험을 최대한 놓치지 않도록 판정 기준(threshold)을 낮춰 설계했기 때문이다 <br>
-      — 소방·안전 점검 맥락에서는 위험을 놓치는 비용이, 안전한 곳을 한 번 더 점검하는 비용보다 훨씬 크기 때문이다.
+<div class="scope" style="background:#eff6ff; border-left-color:#2a78d6; font-size: 12px !important; line-height: 1.6 !important;">
+📍 <b>이 숫자들이 왜 괜찮은 수준인지:</b><br>
+정밀도(0.203)와 재현율(0.662)은 일반적인 분류 문제 기준으로는 낮아 보일 수 있지만, 이 데이터의 특성을 감안하면 오히려 <b>우수한 수준</b>이다. 
+<br><b>위험군이(점포수 20개 이상 표본 기준) 전체의 5.4%뿐인 불균형 데이터이기 때문이다.</b><br><br>
+기준 없이 무작위로 "위험"이라고 찍어도 정밀도는 5.4% 근처에 그치는데, 이 모델의 정밀도(0.203(퍼센트로 환산 시 20.3%))는 그보다 3.8배 높다.<br>
+재현율(0.662)이 상대적으로 정밀도보다 높은 것은 정확도를 일부 포기하더라도 실제 위험을 최대한 놓치지 않도록 판정 기준(threshold)을 10%로 낮춰 설계했기 때문이다.<br>
+- <b>소방·안전 점검 맥락에서는 위험을 놓치는 비용이, 안전한 곳을 한 번 더 점검하는 비용보다 훨씬 크다고 판단했다.</b><br><br>
+이는 화재경보기의 민감도 설정과 같은 원리다.<br> 민감도를 낮게(둔감하게) 설정하면 진짜 불이 났을 때만 울리지만(정밀도↑) 가끔 놓칠 수 있고(재현율↓),<br> 민감도를 높게(예민하게) 설정하면 연기만 살짝 나도 울리는 대신(재현율↑) 오작동도 잦아진다(정밀도↓). 
+<br><b>본 모델은 안전 점검이라는 목적에 맞춰 민감한 쪽을 택했다.</b>
 </div>
 
 <details class="caveat">
@@ -124,10 +128,11 @@
 </div>
 
 <div class="note">
-※ 방법론: 상권×업종 조합의 당분기 지표(점포수, 개업율, 폐업률, 프랜차이즈점포수)와 전분기 대비 변화·추세(3분기 이동평균, 최근 기울기)로
-당분기 대비 다음분기 폐업률의 두 비율 z-검정(z≥1.64, 표본크기 기반 표준오차로 정규화 — 상권 규모와 무관한 판정)을
-이진분류. 2024년 4분기까지 학습, 2025년 1~3분기로 검증(시계열 분할). class_weight=balanced로 소수 클래스(위험군 5.4%) 보정.
-데이터: 서울시 우리마을가게 상권분석서비스(상권-점포), data.seoul.go.kr.
+※ 방법론: 상권×업종 조합의 당분기 지표(점포수, 개업율, 폐업률, 프랜차이즈점포수)와 전분기 대비 변화·추세(3분기 이동평균, 최근 기울기)로<br>
+당분기 대비 다음분기 폐업률의 두 비율 z-검정(z≥1.64, 표본크기 기반 표준오차로 정규화 — 상권 규모와 무관한 판정)을 이진분류했다.<br>
+2024년 4분기까지 학습, 2025년 1~3분기로 검증했다(시계열 분할).<br>
+class_weight=balanced로 소수 클래스(위험군 5.4%)를 보정했다.<br>
+데이터: 서울시 우리마을가게 상권분석서비스(상권-점포)
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
