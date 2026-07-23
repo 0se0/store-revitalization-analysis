@@ -266,6 +266,12 @@ HTML_TEMPLATE = """<!DOCTYPE html>
   <div class="cards-box" id="cards"></div>
 </div>
 
+<div class="map-box" style="margin-bottom: 1.5rem;">
+  <div class="map-title">클러스터별 중대형 상가 공실률 추이 (2024 3Q ~ 2026 1Q)</div>
+  <div style="position: relative; height: 320px;">
+    <canvas id="trendChart" role="img" aria-label="고위험군, 중위험군, 저위험군의 중대형 상가 공실률 7개 분기 추이 선그래프"></canvas>
+  </div>
+</div>
 
 
 
