@@ -62,6 +62,9 @@ MARKET_COORDS = {
 안전등급 지도 - 1단계 메인화면으로 쓸 프로토타입
 risk_grade_model.py에서 나온 A~D 등급 + 위 MARKET_COORDS 위치 데이터 합쳐서
 서울 지도 위에 노후상가들 안전관리 우선순위 등급 표시함
+
+[수정] 폐업률을 팝업에 표시 + 등급 필터 버튼 추가
+(이미 markers 데이터에 close_rate 값이 있었는데 팝업에서 안 보여주고 있던 걸 반영)
 """
 import json
 import os
@@ -112,8 +115,10 @@ def generate(rows: list) -> str:
   #mapArea {{ width: 100%; height: 620px; border-radius: 8px; overflow: hidden; }}
   .legend {{ position: absolute; z-index: 1000; top: 4.2rem; right: 2.2rem; background: rgba(255,255,255,0.95); border: 1px solid #e8e7e2;
     border-radius: 8px; padding: 10px 14px; font-size: 11px; }}
-  .legend-row {{ display: flex; align-items: center; gap: 6px; margin-bottom: 4px; }}
+  .legend-row {{ display: flex; align-items: center; gap: 6px; margin-bottom: 4px; cursor: pointer; user-select: none; }}
+  .legend-row.off {{ opacity: 0.35; }}
   .legend-dot {{ width: 10px; height: 10px; border-radius: 50%; }}
+  .filter-hint {{ font-size: 9px; color: #898781; margin-top: 6px; border-top: 1px solid #e8e7e2; padding-top: 6px; }}
   .side-panel {{ display: flex; flex-direction: column; gap: 10px; }}
   .kpi-card {{ background: #f1f0eb; border-radius: 8px; padding: 0.875rem; text-align: center; }}
   .kpi-label {{ font-size: 11px; color: #898781; margin-bottom: 4px; }}
@@ -122,7 +127,7 @@ def generate(rows: list) -> str:
   .top-list-title {{ font-size: 12px; font-weight: 600; color: #52514e; margin-bottom: 8px; }}
   .top-item {{ display: flex; justify-content: space-between; font-size: 11px; padding: 4px 0; border-bottom: 1px solid #f1f0eb; }}
   .note {{ font-size: 11px; color: #898781; margin-top: 1.5rem; line-height: 1.6; }}
-  .leaflet-popup-content {{ font-size: 12px; line-height: 1.5; }}
+  .leaflet-popup-content {{ font-size: 12px; line-height: 1.6; }}
 </style>
 </head>
 <body>
@@ -133,19 +138,21 @@ def generate(rows: list) -> str:
 📍 <b>위치 정확도 안내:</b> 지도에 표시된 안전등급(D~A)과 위험점수는 `risk_grade_model.py`가 48개 상권의 실측 데이터로 계산한 결과 그대로다.<br>
 다만 마커의 정확한 좌표(위경도)는 각 상권이 위치한 동/구의 중심점으로 표시한 근사치이며, 실제 건물의 정밀 주소 좌표는 아니다. <br>
 (예: 동대문상가 A~D동은 실제로 같은 복합건물 내 동(wing) 구분이라 근사치로도 위치가 크게 다르지 않지만, 일부 인접 건물은 정밀도가 떨어질 수 있다.)<br>
-지도 자체는 실제 OpenStreetMap 타일을 사용한다.(Leaflet.js) 실 서비스 단계에서는 상가정보 API의 정확한 위경도(lon/lat) 필드로 교체할 예정이다.
+지도 자체는 실제 OpenStreetMap 타일을 사용한다.(Leaflet.js) 실 서비스 단계에서는 상가정보 API의 정확한 위경도(lon/lat) 필드로 교체할 예정이다.<br>
+건물 준공연도·공실 추정 현황은 상권 단위 데이터로는 산출이 어려워 이번 프로토타입에는 포함하지 않았다(향후 건물 단위 데이터 확보 시 반영 예정).
 </div>
 
 <div class="layout">
   <div class="map-box">
     <div class="map-title">서울시 안전관리 우선순위 등급 분포 (실제 지도)</div>
     <div id="mapArea"></div>
-    <div class="legend">
-      <div style="font-weight:600;margin-bottom:6px;">안전등급</div>
-      <div class="legend-row"><div class="legend-dot" style="background:#e34948;"></div>D — 최우선 점검</div>
-      <div class="legend-row"><div class="legend-dot" style="background:#f59e0b;"></div>C — 우선 점검 권고</div>
-      <div class="legend-row"><div class="legend-dot" style="background:#2a78d6;"></div>B — 정기 모니터링</div>
-      <div class="legend-row"><div class="legend-dot" style="background:#3b6d11;"></div>A — 양호</div>
+    <div class="legend" id="legendBox">
+      <div style="font-weight:600;margin-bottom:6px;">안전등급 (클릭해서 필터)</div>
+      <div class="legend-row" data-grade="D"><div class="legend-dot" style="background:#e34948;"></div>D — 최우선 점검</div>
+      <div class="legend-row" data-grade="C"><div class="legend-dot" style="background:#f59e0b;"></div>C — 우선 점검 권고</div>
+      <div class="legend-row" data-grade="B"><div class="legend-dot" style="background:#2a78d6;"></div>B — 정기 모니터링</div>
+      <div class="legend-row" data-grade="A"><div class="legend-dot" style="background:#3b6d11;"></div>A — 양호</div>
+      <div class="filter-hint">등급을 클릭하면 지도에서 켜고 끌 수 있습니다</div>
     </div>
   </div>
   <div class="side-panel">
@@ -177,6 +184,9 @@ def generate(rows: list) -> str:
 
 <script>
 const markers = {markers_json};
+const gradeColors = {{ D: '#e34948', C: '#f59e0b', B: '#2a78d6', A: '#3b6d11' }};
+const activeGrades = new Set(['D','C','B','A']);
+const circleByMarker = [];
 
 const map = L.map('mapArea').setView([37.5665, 126.9780], 11);
 L.tileLayer('https://{{s}}.tile.openstreetmap.org/{{z}}/{{x}}/{{y}}.png', {{
@@ -192,7 +202,30 @@ markers.forEach(m => {{
     weight: 1.5,
     fillOpacity: 0.9,
   }}).addTo(map);
-  circle.bindPopup(`<b>[${{m.grade}}] ${{m.name}}</b><br>위험점수 ${{m.score}} · 순증감 ${{m.net_change}}%`);
+  // [수정] 폐업률(close_rate)을 팝업에 추가 표시
+  circle.bindPopup(`<b>[${{m.grade}}] ${{m.name}}</b><br>위험점수 ${{m.score}} · 순증감 ${{m.net_change}}%<br>최근4분기 평균폐업률 ${{m.close_rate}}%`);
+  circleByMarker.push({{ marker: m, circle }});
+}});
+
+// [신규] 범례 클릭 시 해당 등급 마커 켜고 끄기
+document.querySelectorAll('.legend-row').forEach(row => {{
+  row.addEventListener('click', () => {{
+    const grade = row.dataset.grade;
+    if (activeGrades.has(grade)) {{
+      activeGrades.delete(grade);
+      row.classList.add('off');
+    }} else {{
+      activeGrades.add(grade);
+      row.classList.remove('off');
+    }}
+    circleByMarker.forEach(({{ marker, circle }}) => {{
+      if (activeGrades.has(marker.grade)) {{
+        if (!map.hasLayer(circle)) circle.addTo(map);
+      }} else {{
+        if (map.hasLayer(circle)) map.removeLayer(circle);
+      }}
+    }});
+  }});
 }});
 
 const dList = document.getElementById('dList');
@@ -209,6 +242,7 @@ if __name__ == "__main__":
     rows = compute_risk_grades(result)
     html = generate(rows)
     output_path = os.path.join(BASE_DIR, "html", "역산공실탐지기반_안전등급지도.html")
+    os.makedirs(os.path.join(BASE_DIR, "html"), exist_ok=True)
     with open(output_path, "w", encoding="utf-8") as f:
         f.write(html)
     print(f"생성 완료: {output_path}")
