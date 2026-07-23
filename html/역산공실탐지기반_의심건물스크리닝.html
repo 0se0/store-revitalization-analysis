@@ -25,8 +25,8 @@
 </style>
 </head>
 <body>
-<h1>역산공실탐지기반 — 의심건물 스크리닝 리포트 (2단계)</h1>
-<div class="subtitle">등록전유부수 대비 실제영업중수 격차 기반 우선 확인 대상 우선순위 — verification_log.csv(303개 건물 실측) 재활용</div>
+<h1>역산공실탐지기반 — 의심건물 스크리닝 리포트 (2단계) — v2.0 (격차 40% + 배율 30% + 건물연식 30%)</h1>
+<div class="subtitle">등록전유부수 대비 실제영업중수 격차·배율·건물연식 기반 우선 확인 대상 우선순위 — verification_log.csv(303개 건물 실측) 재활용</div>
 
 <div class="scope" style="font-size: 13px !important; line-height: 1.6 !important;">
 📍 <b>이 리포트의 특징:<br></b> "등록전유부수 &lt; 실제영업중수" 불일치는 그 자체로 불법 증축·무단 용도변경을 확정하는 증거가 아니라,<br>
@@ -55,323 +55,416 @@
 </div>
 
 <div class="chart-box">
-  <div class="chart-title">의심도 점수 상위 15건 (격차·배율 결합 점수)</div>
+  <div class="chart-title">의심도 점수 상위 15건 (격차·배율·연식 결합 점수)</div>
   <div class="chart-wrap"><canvas id="barChart"></canvas></div>
 </div>
 
 <div class="chart-box">
   <div class="chart-title">의심도 점수 상위 30건 상세 — 확인 우선순위 리스트</div>
   <table>
-    <thead><tr><th>순위</th><th>시군구</th><th>상가명(기준)</th><th>건물명</th><th>등록전유부</th><th>실제영업중</th><th>격차</th><th>배율</th><th>의심도점수</th></tr></thead>
+    <thead><tr><th>순위</th><th>시군구</th><th>상가명(기준)</th><th>건물명</th><th>건물연식</th><th>등록전유부</th><th>실제영업중</th><th>격차</th><th>배율</th><th>의심도점수</th><th>규모구분</th><th>노후여부</th></tr></thead>
     <tbody><tr>
             <td>1</td>
             <td>광진구</td>
             <td>메가통신</td>
             <td>강변테크노마트</td>
+            <td>28년</td>
             <td>1</td>
             <td>500</td>
             <td style="color:#e34948;font-weight:600;">+499</td>
             <td style="color:#e34948;font-weight:600;">500.0배</td>
-            <td><span class="score-badge">100.0</span></td>
+            <td><span class="score-badge">82.8</span></td>
+            <td style="color:#898781;font-weight:600;">대형(재점검)</td>
+            <td style="color:#898781;font-weight:600;">비노후</td>
         </tr><tr>
             <td>2</td>
             <td>영등포구</td>
             <td>한옥집김치찜롯데백화점</td>
             <td>영등포 민자역사</td>
+            <td>35년</td>
             <td>1</td>
             <td>266</td>
             <td style="color:#e34948;font-weight:600;">+265</td>
             <td style="color:#e34948;font-weight:600;">266.0배</td>
-            <td><span class="score-badge">52.9</span></td>
+            <td><span class="score-badge">53.7</span></td>
+            <td style="color:#898781;font-weight:600;">대형(재점검)</td>
+            <td style="color:#e34948;font-weight:600;">노후(30년+)</td>
         </tr><tr>
             <td>3</td>
-            <td>강남구</td>
-            <td>프라임세무회계사무소</td>
-            <td>수서현대벤쳐빌</td>
-            <td>1</td>
-            <td>254</td>
-            <td style="color:#e34948;font-weight:600;">+253</td>
-            <td style="color:#e34948;font-weight:600;">254.0배</td>
-            <td><span class="score-badge">50.5</span></td>
-        </tr><tr>
-            <td>4</td>
-            <td>마포구</td>
-            <td>파마트엘지약국</td>
-            <td>LG팰리스빌딩</td>
-            <td>1</td>
-            <td>188</td>
-            <td style="color:#e34948;font-weight:600;">+187</td>
-            <td style="color:#e34948;font-weight:600;">188.0배</td>
-            <td><span class="score-badge">37.2</span></td>
-        </tr><tr>
-            <td>5</td>
-            <td>강남구</td>
-            <td>세무사김승일사무소</td>
-            <td>한라클라식 오피스텔</td>
-            <td>1</td>
-            <td>170</td>
-            <td style="color:#e34948;font-weight:600;">+169</td>
-            <td style="color:#e34948;font-weight:600;">170.0배</td>
-            <td><span class="score-badge">33.6</span></td>
-        </tr><tr>
-            <td>6</td>
-            <td>강남구</td>
-            <td>순영이엔지</td>
-            <td>-</td>
-            <td>1</td>
-            <td>168</td>
-            <td style="color:#e34948;font-weight:600;">+167</td>
-            <td style="color:#e34948;font-weight:600;">168.0배</td>
-            <td><span class="score-badge">33.2</span></td>
-        </tr><tr>
-            <td>7</td>
-            <td>마포구</td>
-            <td>법무사김기동사무소</td>
-            <td>한국사회복지회관 르네상스타워</td>
-            <td>1</td>
-            <td>143</td>
-            <td style="color:#e34948;font-weight:600;">+142</td>
-            <td style="color:#e34948;font-weight:600;">143.0배</td>
-            <td><span class="score-badge">28.2</span></td>
-        </tr><tr>
-            <td>8</td>
             <td>종로구</td>
             <td>광명피아노</td>
-            <td>-</td>
+            <td>(건물명 미상)</td>
+            <td>58년</td>
             <td>1</td>
             <td>142</td>
             <td style="color:#e34948;font-weight:600;">+141</td>
             <td style="color:#e34948;font-weight:600;">142.0배</td>
-            <td><span class="score-badge">28.0</span></td>
+            <td><span class="score-badge">49.0</span></td>
+            <td style="color:#898781;font-weight:600;">대형(재점검)</td>
+            <td style="color:#e34948;font-weight:600;">노후(30년+)</td>
+        </tr><tr>
+            <td>4</td>
+            <td>강남구</td>
+            <td>프라임세무회계사무소</td>
+            <td>수서현대벤쳐빌</td>
+            <td>24년</td>
+            <td>1</td>
+            <td>254</td>
+            <td style="color:#e34948;font-weight:600;">+253</td>
+            <td style="color:#e34948;font-weight:600;">254.0배</td>
+            <td><span class="score-badge">45.9</span></td>
+            <td style="color:#898781;font-weight:600;">대형(재점검)</td>
+            <td style="color:#898781;font-weight:600;">비노후</td>
+        </tr><tr>
+            <td>5</td>
+            <td>종로구</td>
+            <td>임가전</td>
+            <td>세운상가</td>
+            <td>59년</td>
+            <td>1</td>
+            <td>79</td>
+            <td style="color:#e34948;font-weight:600;">+78</td>
+            <td style="color:#e34948;font-weight:600;">79.0배</td>
+            <td><span class="score-badge">40.7</span></td>
+            <td style="color:#2a78d6;font-weight:600;">중소(신규확인)</td>
+            <td style="color:#e34948;font-weight:600;">노후(30년+)</td>
+        </tr><tr>
+            <td>6</td>
+            <td>강남구</td>
+            <td>순영이엔지</td>
+            <td>(건물명 미상)</td>
+            <td>35년</td>
+            <td>1</td>
+            <td>168</td>
+            <td style="color:#e34948;font-weight:600;">+167</td>
+            <td style="color:#e34948;font-weight:600;">168.0배</td>
+            <td><span class="score-badge">39.9</span></td>
+            <td style="color:#898781;font-weight:600;">대형(재점검)</td>
+            <td style="color:#e34948;font-weight:600;">노후(30년+)</td>
+        </tr><tr>
+            <td>7</td>
+            <td>마포구</td>
+            <td>파마트엘지약국</td>
+            <td>LG팰리스빌딩</td>
+            <td>27년</td>
+            <td>1</td>
+            <td>188</td>
+            <td style="color:#e34948;font-weight:600;">+187</td>
+            <td style="color:#e34948;font-weight:600;">188.0배</td>
+            <td><span class="score-badge">38.3</span></td>
+            <td style="color:#898781;font-weight:600;">대형(재점검)</td>
+            <td style="color:#898781;font-weight:600;">비노후</td>
+        </tr><tr>
+            <td>8</td>
+            <td>영등포구</td>
+            <td>홍스커피홍，sCoffee</td>
+            <td>(건물명 미상)</td>
+            <td>39년</td>
+            <td>1</td>
+            <td>138</td>
+            <td style="color:#e34948;font-weight:600;">+137</td>
+            <td style="color:#e34948;font-weight:600;">138.0배</td>
+            <td><span class="score-badge">37.9</span></td>
+            <td style="color:#898781;font-weight:600;">대형(재점검)</td>
+            <td style="color:#e34948;font-weight:600;">노후(30년+)</td>
         </tr><tr>
             <td>9</td>
             <td>강남구</td>
             <td>강남로얄</td>
             <td>역삼하이츠빌딩</td>
+            <td>35년</td>
             <td>1</td>
             <td>139</td>
             <td style="color:#e34948;font-weight:600;">+138</td>
             <td style="color:#e34948;font-weight:600;">139.0배</td>
-            <td><span class="score-badge">27.4</span></td>
+            <td><span class="score-badge">35.8</span></td>
+            <td style="color:#898781;font-weight:600;">대형(재점검)</td>
+            <td style="color:#e34948;font-weight:600;">노후(30년+)</td>
         </tr><tr>
             <td>10</td>
-            <td>영등포구</td>
-            <td>홍스커피홍，sCoffee</td>
-            <td>-</td>
+            <td>강남구</td>
+            <td>세무사김승일사무소</td>
+            <td>한라클라식 오피스텔</td>
+            <td>27년</td>
             <td>1</td>
-            <td>138</td>
-            <td style="color:#e34948;font-weight:600;">+137</td>
-            <td style="color:#e34948;font-weight:600;">138.0배</td>
-            <td><span class="score-badge">27.2</span></td>
+            <td>170</td>
+            <td style="color:#e34948;font-weight:600;">+169</td>
+            <td style="color:#e34948;font-weight:600;">170.0배</td>
+            <td><span class="score-badge">35.7</span></td>
+            <td style="color:#898781;font-weight:600;">대형(재점검)</td>
+            <td style="color:#898781;font-weight:600;">비노후</td>
         </tr><tr>
             <td>11</td>
-            <td>성동구</td>
-            <td>한국성과코칭협회</td>
-            <td>성수역 SK V1 tower</td>
-            <td>1</td>
-            <td>114</td>
-            <td style="color:#e34948;font-weight:600;">+113</td>
-            <td style="color:#e34948;font-weight:600;">114.0배</td>
-            <td><span class="score-badge">22.3</span></td>
-        </tr><tr>
-            <td>12</td>
-            <td>영등포구</td>
-            <td>상백임지석법률사무소</td>
-            <td>에이스 하이테크시티3</td>
-            <td>1</td>
-            <td>111</td>
-            <td style="color:#e34948;font-weight:600;">+110</td>
-            <td style="color:#e34948;font-weight:600;">111.0배</td>
-            <td><span class="score-badge">21.7</span></td>
-        </tr><tr>
-            <td>13</td>
-            <td>강북구</td>
-            <td>연합시설관리주</td>
-            <td>가든타워오피스텔</td>
-            <td>1</td>
-            <td>109</td>
-            <td style="color:#e34948;font-weight:600;">+108</td>
-            <td style="color:#e34948;font-weight:600;">109.0배</td>
-            <td><span class="score-badge">21.3</span></td>
-        </tr><tr>
-            <td>14</td>
-            <td>영등포구</td>
-            <td>LJ커뮤니케이션</td>
-            <td>에이스 하이테크시티2 지식산업센터</td>
-            <td>1</td>
-            <td>103</td>
-            <td style="color:#e34948;font-weight:600;">+102</td>
-            <td style="color:#e34948;font-weight:600;">103.0배</td>
-            <td><span class="score-badge">20.1</span></td>
-        </tr><tr>
-            <td>15</td>
-            <td>강남구</td>
-            <td>동일세무회계사무소</td>
-            <td>-</td>
-            <td>1</td>
-            <td>96</td>
-            <td style="color:#e34948;font-weight:600;">+95</td>
-            <td style="color:#e34948;font-weight:600;">96.0배</td>
-            <td><span class="score-badge">18.7</span></td>
-        </tr><tr>
-            <td>16</td>
-            <td>영등포구</td>
-            <td>한백광고</td>
-            <td>리드원센터</td>
-            <td>1</td>
-            <td>93</td>
-            <td style="color:#e34948;font-weight:600;">+92</td>
-            <td style="color:#e34948;font-weight:600;">93.0배</td>
-            <td><span class="score-badge">18.1</span></td>
-        </tr><tr>
-            <td>17</td>
-            <td>영등포구</td>
-            <td>서민수임대</td>
-            <td>S-TRENUE</td>
-            <td>1</td>
-            <td>90</td>
-            <td style="color:#e34948;font-weight:600;">+89</td>
-            <td style="color:#e34948;font-weight:600;">90.0배</td>
-            <td><span class="score-badge">17.5</span></td>
-        </tr><tr>
-            <td>18</td>
             <td>영등포구</td>
             <td>서울신문</td>
-            <td>-</td>
+            <td>(건물명 미상)</td>
+            <td>46년</td>
             <td>1</td>
             <td>89</td>
             <td style="color:#e34948;font-weight:600;">+88</td>
             <td style="color:#e34948;font-weight:600;">89.0배</td>
-            <td><span class="score-badge">17.3</span></td>
+            <td><span class="score-badge">34.9</span></td>
+            <td style="color:#2a78d6;font-weight:600;">중소(신규확인)</td>
+            <td style="color:#e34948;font-weight:600;">노후(30년+)</td>
         </tr><tr>
-            <td>19</td>
+            <td>12</td>
+            <td>중구</td>
+            <td>카리스</td>
+            <td>(건물명 미상)</td>
+            <td>58년</td>
+            <td>1</td>
+            <td>37</td>
+            <td style="color:#e34948;font-weight:600;">+36</td>
+            <td style="color:#e34948;font-weight:600;">37.0배</td>
+            <td><span class="score-badge">34.2</span></td>
+            <td style="color:#2a78d6;font-weight:600;">중소(신규확인)</td>
+            <td style="color:#e34948;font-weight:600;">노후(30년+)</td>
+        </tr><tr>
+            <td>13</td>
+            <td>중구</td>
+            <td>중앙전자시스템</td>
+            <td>(건물명 미상)</td>
+            <td>54년</td>
+            <td>1</td>
+            <td>50</td>
+            <td style="color:#e34948;font-weight:600;">+49</td>
+            <td style="color:#e34948;font-weight:600;">50.0배</td>
+            <td><span class="score-badge">33.8</span></td>
+            <td style="color:#2a78d6;font-weight:600;">중소(신규확인)</td>
+            <td style="color:#e34948;font-weight:600;">노후(30년+)</td>
+        </tr><tr>
+            <td>14</td>
+            <td>강북구</td>
+            <td>연합시설관리주</td>
+            <td>가든타워오피스텔</td>
+            <td>35년</td>
+            <td>1</td>
+            <td>109</td>
+            <td style="color:#e34948;font-weight:600;">+108</td>
+            <td style="color:#e34948;font-weight:600;">109.0배</td>
+            <td><span class="score-badge">31.6</span></td>
+            <td style="color:#898781;font-weight:600;">대형(재점검)</td>
+            <td style="color:#e34948;font-weight:600;">노후(30년+)</td>
+        </tr><tr>
+            <td>15</td>
             <td>마포구</td>
             <td>힐링</td>
             <td>제일빌딩</td>
+            <td>41년</td>
             <td>1</td>
             <td>84</td>
             <td style="color:#e34948;font-weight:600;">+83</td>
             <td style="color:#e34948;font-weight:600;">84.0배</td>
-            <td><span class="score-badge">16.3</span></td>
+            <td><span class="score-badge">31.4</span></td>
+            <td style="color:#2a78d6;font-weight:600;">중소(신규확인)</td>
+            <td style="color:#e34948;font-weight:600;">노후(30년+)</td>
         </tr><tr>
-            <td>20</td>
-            <td>영등포구</td>
-            <td>해연유학원</td>
-            <td>리버뷰 신안인스빌</td>
-            <td>1</td>
-            <td>82</td>
-            <td style="color:#e34948;font-weight:600;">+81</td>
-            <td style="color:#e34948;font-weight:600;">82.0배</td>
-            <td><span class="score-badge">15.9</span></td>
-        </tr><tr>
-            <td>21</td>
-            <td>성동구</td>
-            <td>포스트디자인</td>
-            <td>서울숲AK밸리 지식산업센터</td>
-            <td>1</td>
-            <td>81</td>
-            <td style="color:#e34948;font-weight:600;">+80</td>
-            <td style="color:#e34948;font-weight:600;">81.0배</td>
-            <td><span class="score-badge">15.7</span></td>
-        </tr><tr>
-            <td>22</td>
-            <td>종로구</td>
-            <td>임가전</td>
-            <td>세운상가</td>
-            <td>1</td>
-            <td>79</td>
-            <td style="color:#e34948;font-weight:600;">+78</td>
-            <td style="color:#e34948;font-weight:600;">79.0배</td>
-            <td><span class="score-badge">15.3</span></td>
-        </tr><tr>
-            <td>23</td>
-            <td>성동구</td>
-            <td>하나애드</td>
-            <td>서울숲IT밸리</td>
-            <td>1</td>
-            <td>78</td>
-            <td style="color:#e34948;font-weight:600;">+77</td>
-            <td style="color:#e34948;font-weight:600;">78.0배</td>
-            <td><span class="score-badge">15.1</span></td>
-        </tr><tr>
-            <td>24</td>
+            <td>16</td>
             <td>중구</td>
-            <td>정병철임대</td>
-            <td>비즈센터</td>
+            <td>씨엠</td>
+            <td>(건물명 미상)</td>
+            <td>59년</td>
             <td>1</td>
-            <td>74</td>
-            <td style="color:#e34948;font-weight:600;">+73</td>
-            <td style="color:#e34948;font-weight:600;">74.0배</td>
-            <td><span class="score-badge">14.3</span></td>
+            <td>8</td>
+            <td style="color:#e34948;font-weight:600;">+7</td>
+            <td style="color:#e34948;font-weight:600;">8.0배</td>
+            <td><span class="score-badge">30.7</span></td>
+            <td style="color:#2a78d6;font-weight:600;">중소(신규확인)</td>
+            <td style="color:#e34948;font-weight:600;">노후(30년+)</td>
         </tr><tr>
-            <td>25</td>
+            <td>17</td>
             <td>마포구</td>
             <td>성모탑정형외과의원</td>
             <td>고려빌딩</td>
+            <td>42년</td>
             <td>1</td>
             <td>73</td>
             <td style="color:#e34948;font-weight:600;">+72</td>
             <td style="color:#e34948;font-weight:600;">73.0배</td>
-            <td><span class="score-badge">14.1</span></td>
+            <td><span class="score-badge">30.4</span></td>
+            <td style="color:#2a78d6;font-weight:600;">중소(신규확인)</td>
+            <td style="color:#e34948;font-weight:600;">노후(30년+)</td>
         </tr><tr>
-            <td>26</td>
-            <td>광진구</td>
-            <td>M.nail</td>
-            <td>현대프라임아파트</td>
-            <td>1</td>
-            <td>73</td>
-            <td style="color:#e34948;font-weight:600;">+72</td>
-            <td style="color:#e34948;font-weight:600;">73.0배</td>
-            <td><span class="score-badge">14.1</span></td>
-        </tr><tr>
-            <td>27</td>
-            <td>강남구</td>
-            <td>파리클라라</td>
-            <td>석탑프라자</td>
-            <td>1</td>
-            <td>70</td>
-            <td style="color:#e34948;font-weight:600;">+69</td>
-            <td style="color:#e34948;font-weight:600;">70.0배</td>
-            <td><span class="score-badge">13.5</span></td>
-        </tr><tr>
-            <td>28</td>
-            <td>강남구</td>
-            <td>한양법률사무소</td>
-            <td>삼성제일빌딩</td>
-            <td>1</td>
-            <td>69</td>
-            <td style="color:#e34948;font-weight:600;">+68</td>
-            <td style="color:#e34948;font-weight:600;">69.0배</td>
-            <td><span class="score-badge">13.3</span></td>
-        </tr><tr>
-            <td>29</td>
+            <td>18</td>
             <td>마포구</td>
-            <td>세무사김운룡사무소</td>
-            <td>마포현대하이엘</td>
+            <td>법무사김기동사무소</td>
+            <td>한국사회복지회관 르네상스타워</td>
+            <td>24년</td>
             <td>1</td>
-            <td>68</td>
-            <td style="color:#e34948;font-weight:600;">+67</td>
-            <td style="color:#e34948;font-weight:600;">68.0배</td>
-            <td><span class="score-badge">13.1</span></td>
+            <td>143</td>
+            <td style="color:#e34948;font-weight:600;">+142</td>
+            <td style="color:#e34948;font-weight:600;">143.0배</td>
+            <td><span class="score-badge">30.3</span></td>
+            <td style="color:#898781;font-weight:600;">대형(재점검)</td>
+            <td style="color:#898781;font-weight:600;">비노후</td>
         </tr><tr>
+            <td>19</td>
+            <td>강남구</td>
+            <td>동일세무회계사무소</td>
+            <td>(건물명 미상)</td>
+            <td>35년</td>
+            <td>1</td>
+            <td>96</td>
+            <td style="color:#e34948;font-weight:600;">+95</td>
+            <td style="color:#e34948;font-weight:600;">96.0배</td>
+            <td><span class="score-badge">29.8</span></td>
+            <td style="color:#2a78d6;font-weight:600;">중소(신규확인)</td>
+            <td style="color:#e34948;font-weight:600;">노후(30년+)</td>
+        </tr><tr>
+            <td>20</td>
+            <td>강남구</td>
+            <td>도곡상회</td>
+            <td>(건물명 미상)</td>
+            <td>52년</td>
+            <td>1</td>
+            <td>15</td>
+            <td style="color:#e34948;font-weight:600;">+14</td>
+            <td style="color:#e34948;font-weight:600;">15.0배</td>
+            <td><span class="score-badge">27.8</span></td>
+            <td style="color:#2a78d6;font-weight:600;">중소(신규확인)</td>
+            <td style="color:#e34948;font-weight:600;">노후(30년+)</td>
+        </tr><tr>
+            <td>21</td>
+            <td>강남구</td>
+            <td>샤론스톤</td>
+            <td>현대아파트</td>
+            <td>47년</td>
+            <td>1</td>
             <td>30</td>
+            <td style="color:#e34948;font-weight:600;">+29</td>
+            <td style="color:#e34948;font-weight:600;">30.0배</td>
+            <td><span class="score-badge">27.1</span></td>
+            <td style="color:#2a78d6;font-weight:600;">중소(신규확인)</td>
+            <td style="color:#e34948;font-weight:600;">노후(30년+)</td>
+        </tr><tr>
+            <td>22</td>
+            <td>마포구</td>
+            <td>다나건축사사무소</td>
+            <td>고려아카데미텔</td>
+            <td>38년</td>
+            <td>1</td>
+            <td>56</td>
+            <td style="color:#e34948;font-weight:600;">+55</td>
+            <td style="color:#e34948;font-weight:600;">56.0배</td>
+            <td><span class="score-badge">25.8</span></td>
+            <td style="color:#2a78d6;font-weight:600;">중소(신규확인)</td>
+            <td style="color:#e34948;font-weight:600;">노후(30년+)</td>
+        </tr><tr>
+            <td>23</td>
             <td>강남구</td>
             <td>세린유학원</td>
             <td>샹제리제센터</td>
+            <td>36년</td>
             <td>1</td>
             <td>63</td>
             <td style="color:#e34948;font-weight:600;">+62</td>
             <td style="color:#e34948;font-weight:600;">63.0배</td>
-            <td><span class="score-badge">12.1</span></td>
+            <td><span class="score-badge">25.7</span></td>
+            <td style="color:#2a78d6;font-weight:600;">중소(신규확인)</td>
+            <td style="color:#e34948;font-weight:600;">노후(30년+)</td>
+        </tr><tr>
+            <td>24</td>
+            <td>강남구</td>
+            <td>한양법률사무소</td>
+            <td>삼성제일빌딩</td>
+            <td>32년</td>
+            <td>1</td>
+            <td>69</td>
+            <td style="color:#e34948;font-weight:600;">+68</td>
+            <td style="color:#e34948;font-weight:600;">69.0배</td>
+            <td><span class="score-badge">24.3</span></td>
+            <td style="color:#2a78d6;font-weight:600;">중소(신규확인)</td>
+            <td style="color:#e34948;font-weight:600;">노후(30년+)</td>
+        </tr><tr>
+            <td>25</td>
+            <td>강남구</td>
+            <td>파리클라라</td>
+            <td>석탑프라자</td>
+            <td>31년</td>
+            <td>1</td>
+            <td>70</td>
+            <td style="color:#e34948;font-weight:600;">+69</td>
+            <td style="color:#e34948;font-weight:600;">70.0배</td>
+            <td><span class="score-badge">23.9</span></td>
+            <td style="color:#2a78d6;font-weight:600;">중소(신규확인)</td>
+            <td style="color:#e34948;font-weight:600;">노후(30년+)</td>
+        </tr><tr>
+            <td>26</td>
+            <td>광진구</td>
+            <td>엠브로돈까스</td>
+            <td>(건물명 미상)</td>
+            <td>46년</td>
+            <td>1</td>
+            <td>7</td>
+            <td style="color:#e34948;font-weight:600;">+6</td>
+            <td style="color:#e34948;font-weight:600;">7.0배</td>
+            <td><span class="score-badge">23.3</span></td>
+            <td style="color:#2a78d6;font-weight:600;">중소(신규확인)</td>
+            <td style="color:#e34948;font-weight:600;">노후(30년+)</td>
+        </tr><tr>
+            <td>27</td>
+            <td>광진구</td>
+            <td>M.nail</td>
+            <td>현대프라임아파트</td>
+            <td>29년</td>
+            <td>1</td>
+            <td>73</td>
+            <td style="color:#e34948;font-weight:600;">+72</td>
+            <td style="color:#e34948;font-weight:600;">73.0배</td>
+            <td><span class="score-badge">23.2</span></td>
+            <td style="color:#2a78d6;font-weight:600;">중소(신규확인)</td>
+            <td style="color:#898781;font-weight:600;">비노후</td>
+        </tr><tr>
+            <td>28</td>
+            <td>성동구</td>
+            <td>법무사원경희사무소</td>
+            <td>한남하이츠아파트</td>
+            <td>44년</td>
+            <td>1</td>
+            <td>7</td>
+            <td style="color:#e34948;font-weight:600;">+6</td>
+            <td style="color:#e34948;font-weight:600;">7.0배</td>
+            <td><span class="score-badge">22.2</span></td>
+            <td style="color:#2a78d6;font-weight:600;">중소(신규확인)</td>
+            <td style="color:#e34948;font-weight:600;">노후(30년+)</td>
+        </tr><tr>
+            <td>29</td>
+            <td>영등포구</td>
+            <td>디지탈전자</td>
+            <td>(건물명 미상)</td>
+            <td>42년</td>
+            <td>1</td>
+            <td>13</td>
+            <td style="color:#e34948;font-weight:600;">+12</td>
+            <td style="color:#e34948;font-weight:600;">13.0배</td>
+            <td><span class="score-badge">22.0</span></td>
+            <td style="color:#2a78d6;font-weight:600;">중소(신규확인)</td>
+            <td style="color:#e34948;font-weight:600;">노후(30년+)</td>
+        </tr><tr>
+            <td>30</td>
+            <td>영등포구</td>
+            <td>동인아이비씨</td>
+            <td>(건물명 미상)</td>
+            <td>35년</td>
+            <td>1</td>
+            <td>40</td>
+            <td style="color:#e34948;font-weight:600;">+39</td>
+            <td style="color:#e34948;font-weight:600;">40.0배</td>
+            <td><span class="score-badge">21.9</span></td>
+            <td style="color:#2a78d6;font-weight:600;">중소(신규확인)</td>
+            <td style="color:#e34948;font-weight:600;">노후(30년+)</td>
         </tr></tbody>
   </table>
 </div>
 
 <div class="note">
 ※ 방법론: verification_log.csv에서 "등록전유부수 &lt; 실제영업중수" 불일치가 확인된 71개 건물을 대상으로,<br>
-격차(실제영업중수 − 등록전유부수)와 배율(실제영업중수 ÷ 등록전유부수)을 각각 0~100으로 정규화한 뒤 동일 가중치(0.5:0.5)로
-결합해 의심도 점수를 산출했다.<br> 격차는 관리 사각지대의 절대적 규모를, 배율은 등록 대비 실제 운영이 얼마나 벗어났는지를
-나타낸다.<br> 데이터: 소상공인시장진흥공단 상가(상권)정보 API, 국토교통부 건축HUB 건축물대장정보 API(2026년 실측).
+격차(실제영업중수 − 등록전유부수)·배율(실제영업중수 ÷ 등록전유부수)·건물연식(사용승인일 기준)을 세 번째 지표로 결합했다(격차 40% + 배율 30% + 연식 30%). 연식 데이터가 없는 건에는 표본 중앙값을 중립적으로 대입했다.<br>
+모두 표본 내 min-max 정규화(0~100) 후 결합했다.<br>
+"규모구분"·"노후여부"는 의심도점수 계산에는 영향을 주지 않는 해석용 라벨이다. 실제영업중수 100개 이상은 "대형(재점검)"으로,
+이미 다중이용시설 등 별도 안전관리를 받고 있을 가능성이 높아 신규 사각지대 발굴보다 기존 관리 현황 재점검 대상으로 활용을 권장한다.
+100개 미만 "중소(신규확인)"이면서 "노후(30년+)"까지 겹치는 건은 새로운 관리 사각지대일 가능성이 상대적으로 높아 현장 확인 우선순위로 권장한다.<br>
+데이터: 소상공인시장진흥공단 상가(상권)정보 API, 국토교통부 건축HUB 건축물대장정보 API(2026년 실측).
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
@@ -379,8 +472,8 @@
 new Chart(document.getElementById('barChart'), {
   type: 'bar',
   data: {
-    labels: ["광진구 메가통신", "영등포구 한옥집김치찜롯데백화점", "강남구 프라임세무회계사무소", "마포구 파마트엘지약국", "강남구 세무사김승일사무소", "강남구 순영이엔지", "마포구 법무사김기동사무소", "종로구 광명피아노", "강남구 강남로얄", "영등포구 홍스커피홍，sCoffee", "성동구 한국성과코칭협회", "영등포구 상백임지석법률사무소", "강북구 연합시설관리주", "영등포구 LJ커뮤니케이션", "강남구 동일세무회계사무소"],
-    datasets: [{ data: [100.0, 52.9, 50.5, 37.2, 33.6, 33.2, 28.2, 28.0, 27.4, 27.2, 22.3, 21.7, 21.3, 20.1, 18.7], backgroundColor: '#e34948', borderRadius: 3 }]
+    labels: ["광진구 강변테크노마트", "영등포구 영등포 민자역사", "종로구 (건물명 미상)", "강남구 수서현대벤쳐빌", "종로구 세운상가", "강남구 (건물명 미상)", "마포구 LG팰리스빌딩", "영등포구 (건물명 미상)", "강남구 역삼하이츠빌딩", "강남구 한라클라식 오피스텔", "영등포구 (건물명 미상)", "중구 (건물명 미상)", "중구 (건물명 미상)", "강북구 가든타워오피스텔", "마포구 제일빌딩"],
+    datasets: [{ data: [82.8, 53.7, 49.0, 45.9, 40.7, 39.9, 38.3, 37.9, 35.8, 35.7, 34.9, 34.2, 33.8, 31.6, 31.4], backgroundColor: '#e34948', borderRadius: 3 }]
   },
   options: {
     indexAxis: 'y',
