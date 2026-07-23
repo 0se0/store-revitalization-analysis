@@ -1,14 +1,14 @@
 """
-지역별 공실 위험도 K-Means 클러스터링 (변수 6개)
-입력: 중대형/소규모/오피스 공실률 + 임대료 (2026 1분기, 17개 시도)
+지역별 공실 위험도 K-Means 클러스터링 (변수 12개: 7개 분기 평균 + 최근 2년 변동폭)
+입력: 중대형/소규모/오피스 공실률 및 임대료 (2024 3Q ~ 2026 1Q 7개 분기 시계열)
+  - 지속성 지표 (6개): 7개 분기 평균값
+  - 추세 지표 (6개): 최근 2년 변동폭 (2026 1Q - 2024 3Q)
 출력: 역산공실탐지기반_클러스터링.html
-
-pandas/sklearn이 여기 numpy 2.x랑 안 맞아서 임포트가 계속 깨짐.
-그래서 그냥 csv 표준라이브러리 + numpy만으로 읽기/정규화/K-Means 직접 구현함
 """
 import csv
 import json
 import os
+import numpy as np
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 CVS_DIR = os.path.join(BASE_DIR, "cvs")
@@ -17,7 +17,7 @@ HTML_DIR = os.path.join(BASE_DIR, "html")
 REGIONS = ["서울", "부산", "대구", "인천", "광주", "대전", "울산", "세종",
            "경기", "강원", "충북", "충남", "전북", "전남", "경북", "경남", "제주"]
 
-# 시도 중심 좌표 (지도 그릴 때 쓸 거)
+# 시도 중심 좌표
 COORDS = {
     "서울": (37.566, 126.978), "부산": (35.179, 129.075), "대구": (35.871, 128.601),
     "인천": (37.456, 126.705), "광주": (35.160, 126.851), "대전": (36.351, 127.385),
@@ -36,42 +36,52 @@ FILES = {
     "rent_office": "임대동향_지역별_임대료_2024년3분기___오피스.csv",
 }
 
+QUARTERS = ["2024 3Q", "2024 4Q", "2025 1Q", "2025 2Q", "2025 3Q", "2025 4Q", "2026 1Q"]
 
-def read_latest(filename):
-    """CSV에서 시도 단위 행(지역,지역,지역이 모두 같은 행)의 2026년 1분기(마지막 열) 값을 읽는다."""
+
+def read_timeseries(filename):
+    """CSV에서 7개 분기 전체를 읽어 평균(지속성)·변동폭(추세)·원본 시계열을 반환한다."""
     path = os.path.join(CVS_DIR, filename)
     with open(path, encoding="cp949") as f:
         rows = list(csv.reader(f))
-    out = {}
-    for row in rows[3:]:  # 앞 3줄은 헤더(연도/지표명/단위)
+    avg_out, diff_out, series_out = {}, {}, {}
+    for row in rows[3:]:
         if len(row) < 11:
             continue
         _, a, b, c = row[0], row[1], row[2], row[3]
         if a == b == c and a != "전국":
-            out[a] = float(row[10])
-    return out
+            vals = [float(x) for x in row[4:11]]  # 2024 3Q ~ 2026 1Q (7개 분기)
+            avg_out[a] = sum(vals) / len(vals)
+            diff_out[a] = vals[-1] - vals[0]  # 최근 분기 - 과거 최초 분기
+            series_out[a] = vals
+    return avg_out, diff_out, series_out
 
 
 def main():
-    values = {k: read_latest(fn) for k, fn in FILES.items()}
+    avg_vals, diff_vals, series_vals = {}, {}, {}
+    for k, fn in FILES.items():
+        a, d, s = read_timeseries(fn)
+        avg_vals[k], diff_vals[k], series_vals[k] = a, d, s
 
-    feature_keys = ["vac_large", "vac_small", "vac_office",
-                     "rent_large", "rent_small", "rent_office"]
-    shop_idx = [0, 1, 3, 4]  # vac_large, vac_small, rent_large, rent_small (세종도 관측치 있음)
+    # 변수 12개 구성 (6개 평균 + 6개 변동폭)
+    feature_types = ["vac_large", "vac_small", "vac_office", "rent_large", "rent_small", "rent_office"]
 
-    import numpy as np
-
-    # 세종은 오피스 임대동향 조사를 아예 안 해서 오피스 관련 변수 2개가 없음.
-    # 값을 임의로 만들어내기는 싫어서, K-means 학습 자체는 오피스 데이터 있는 16개 시도로만 함
+    # 세종시 제외한 16개 시도로 학습 (세종은 오피스 임대동향 조사 미실시)
     fit_regions = [r for r in REGIONS if r != "세종"]
-    X = np.array([[values[k][r] for k in feature_keys] for r in fit_regions])
 
-    # StandardScaler랑 똑같은 방식으로 표준화 (ddof=0, sklearn 기본값이랑 동일하게 맞춤)
+    X_list = []
+    for r in fit_regions:
+        row = [avg_vals[k][r] for k in feature_types] + [diff_vals[k][r] for k in feature_types]
+        X_list.append(row)
+    X = np.array(X_list)
+
+    # 표준화 (StandardScaler)
     mean = X.mean(axis=0)
     std = X.std(axis=0, ddof=0)
+    std[std == 0] = 1.0  # 0으로 나눔 방지
     Xs = (X - mean) / std
 
-    # k-means++ 초기화 + Lloyd's 알고리즘, random_state=42로 재현되게
+    # K-Means (k=3, random_state=42)
     rng = np.random.default_rng(42)
     k = 3
 
@@ -80,12 +90,12 @@ def main():
         centers = [data[rng.integers(n)]]
         for _ in range(1, k):
             d2 = np.min([((data - c) ** 2).sum(axis=1) for c in centers], axis=0)
-            probs = d2 / d2.sum()
+            probs = d2 / (d2.sum() or 1.0)
             centers.append(data[rng.choice(n, p=probs)])
         return np.array(centers)
 
     best_inertia, best_labels, best_centers = None, None, None
-    for _ in range(20):  # 여러 번 초기화해 최적해 탐색 (sklearn n_init 흉내)
+    for _ in range(20):
         centers = kmeans_plusplus_init(Xs, k, rng)
         for _ in range(100):
             dists = np.linalg.norm(Xs[:, None, :] - centers[None, :, :], axis=2)
@@ -104,25 +114,27 @@ def main():
     labels = best_labels
     centers = best_centers
 
-    # 세종은 갖고 있는 4개 변수(상가 공실률/임대료)만으로 표준화해서 부분거리로
-    # 제일 가까운 중심점 찾음 - 오피스 값 지어내지 않고 그냥 있는 데이터로만 군집 배정
-    shop_keys = [feature_keys[i] for i in shop_idx]
-    sejong_x = np.array([values[k]["세종"] for k in shop_keys])
-    sejong_xs = (sejong_x - mean[shop_idx]) / std[shop_idx]
-    sejong_dists = np.linalg.norm(centers[:, shop_idx] - sejong_xs, axis=1)
+    # 세종시는 오피스 제외한 8개 상가 변수로 부분거리 매칭
+    shop_indices = [0, 1, 3, 4, 6, 7, 9, 10]
+    sejong_x = np.array(
+        [avg_vals[k]["세종"] for k in ["vac_large", "vac_small", "rent_large", "rent_small"]] +
+        [diff_vals[k]["세종"] for k in ["vac_large", "vac_small", "rent_large", "rent_small"]]
+    )
+    sejong_xs = (sejong_x - mean[shop_indices]) / std[shop_indices]
+    sejong_dists = np.linalg.norm(centers[:, shop_indices] - sejong_xs, axis=1)
     sejong_label = int(sejong_dists.argmin())
 
     all_labels = {r: int(labels[i]) for i, r in enumerate(fit_regions)}
     all_labels["세종"] = sejong_label
 
-    # 클러스터 위험도 순위 매기기: 공실률 평균 높고 임대료 평균 낮을수록 고위험으로 봄
-    vac_idx = [0, 1, 2]
-    rent_idx = [3, 4, 5]
+    # 위험도 순위: (공실률 평균+변동폭) - (임대료 평균+변동폭) 높을수록 고위험
+    vac_idx = [0, 1, 2, 6, 7, 8]
+    rent_idx = [3, 4, 5, 9, 10, 11]
     risk_score = {}
     for c in range(k):
         idx = np.where(labels == c)[0]
         risk_score[c] = Xs[idx][:, vac_idx].mean() - Xs[idx][:, rent_idx].mean()
-    order = sorted(range(k), key=lambda c: -risk_score[c])  # 위험도 높은 순
+    order = sorted(range(k), key=lambda c: -risk_score[c])
     cluster_rank = {cluster: rank for rank, cluster in enumerate(order)}
 
     palette = [
@@ -137,25 +149,47 @@ def main():
         label, color, bg = palette[rank]
         lat, lng = COORDS[r]
         has_office = r != "세종"
+
         data_out.append({
             "name": r, "cluster": rank, "label": label, "color": color, "bg": bg,
             "lat": lat, "lng": lng,
-            "vac_large": values["vac_large"][r], "vac_small": values["vac_small"][r],
-            "vac_office": round(values["vac_office"][r], 1) if has_office else None,
-            "rent_large": values["rent_large"][r], "rent_small": values["rent_small"][r],
-            "rent_office": round(values["rent_office"][r], 1) if has_office else None,
+            # 최근(2026 1Q 근사) 수치 = 평균 + 변동폭의 절반
+            "vac_large": round(avg_vals["vac_large"][r] + diff_vals["vac_large"][r] / 2, 1),
+            "vac_small": round(avg_vals["vac_small"][r] + diff_vals["vac_small"][r] / 2, 1),
+            "vac_office": round(avg_vals["vac_office"][r] + diff_vals["vac_office"][r] / 2, 1) if has_office else None,
+            # 추세 변동폭 (2년간, %p)
+            "diff_vac_large": round(diff_vals["vac_large"][r], 1),
+            "diff_rent_large": round(diff_vals["rent_large"][r], 1),
+            "rent_large": round(avg_vals["rent_large"][r] + diff_vals["rent_large"][r] / 2, 1),
+            "rent_small": round(avg_vals["rent_small"][r] + diff_vals["rent_small"][r] / 2, 1),
+            "rent_office": round(avg_vals["rent_office"][r] + diff_vals["rent_office"][r] / 2, 1) if has_office else None,
         })
 
     counts = {0: 0, 1: 0, 2: 0}
     for d in data_out:
         counts[d["cluster"]] += 1
-    print("고위험", counts[0], "중위험", counts[1], "저위험", counts[2])
 
-    write_html(data_out, counts)
+    print("고위험", counts[0], "중위험", counts[1], "저위험", counts[2])
+    for label_rank, label_name in enumerate(["고위험", "중위험", "저위험"]):
+        regs = [d["name"] for d in data_out if d["cluster"] == label_rank]
+        print(f"  {label_name}: {'·'.join(regs)}")
+
+    # 클러스터별(고/중/저위험) 중대형 상가 공실률 7개 분기 평균 추이
+    trend_lines = {}
+    for label_rank, label_name in enumerate(["고위험군", "중위험군", "저위험군"]):
+        regs = [d["name"] for d in data_out if d["cluster"] == label_rank]
+        quarterly_avg = []
+        for qi in range(7):
+            vs = [series_vals["vac_large"][r][qi] for r in regs if r in series_vals["vac_large"]]
+            quarterly_avg.append(round(sum(vs) / len(vs), 2))
+        trend_lines[label_name] = quarterly_avg
+        print(f"  {label_name} 공실률 추이: {quarterly_avg}")
+
+    write_html(data_out, counts, trend_lines)
     return data_out
 
 
-def write_html(data_out, counts):
+def write_html(data_out, counts, trend_lines):
     high = [d["name"] for d in data_out if d["cluster"] == 0]
     mid = [d["name"] for d in data_out if d["cluster"] == 1]
     low = [d["name"] for d in data_out if d["cluster"] == 2]
@@ -164,7 +198,10 @@ def write_html(data_out, counts):
         data_json=json.dumps(data_out, ensure_ascii=False),
         high_count=counts[0], mid_count=counts[1], low_count=counts[2],
         high_regions="·".join(high), mid_regions="·".join(mid), low_regions="·".join(low),
+        quarters_json=json.dumps(QUARTERS, ensure_ascii=False),
+        trend_json=json.dumps(trend_lines, ensure_ascii=False),
     )
+    os.makedirs(HTML_DIR, exist_ok=True)
     out_path = os.path.join(HTML_DIR, "역산공실탐지기반_클러스터링.html")
     with open(out_path, "w", encoding="utf-8") as f:
         f.write(html)
@@ -179,6 +216,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
 <title>역산공실탐지기반 — 지역별 공실 위험도 클러스터링 분석</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <style>
   * {{ box-sizing: border-box; margin: 0; padding: 0; }}
   body {{ font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f8f8f7; color: #0b0b0b; padding: 2rem; }}
@@ -211,45 +249,30 @@ HTML_TEMPLATE = """<!DOCTYPE html>
 </style>
 </head>
 <body>
-<h1>역산공실탐지기반 — 지역별 공실 위험도 클러스터링 분석</h1>
-<div class="subtitle">K-Means 클러스터링 (k=3, 6개 변수) | 입력 변수: 중대형·소규모·오피스 공실률, 중대형·소규모·오피스 임대료 (2026년 1분기) | 출처: 한국부동산원 상업용부동산 임대동향조사</div>
+<h1>역산공실탐지기반 — 지역별 공실 위험도 시계열 클러스터링 분석</h1>
+<div class="subtitle">K-Means 클러스터링 (k=3, 12개 시계열 종합 변수) | 입력 변수: 7개 분기 평균(지속성 6개) + 2년 간 변동폭(추세 6개) | 출처: 한국부동산원 상업용부동산 임대동향조사</div>
 
 <div class="layout">
   <div class="map-box">
-    <div class="map-title">시도별 공실 위험도 클러스터 분포</div>
+    <div class="map-title">시도별 공실 위험도 시계열 클러스터 분포</div>
     <div id="mapArea"></div>
     <div class="map-legend">
-      <div class="legend-title">공실 위험도</div>
-      <div class="legend-row"><div class="legend-dot" style="background:#e34948;"></div>고위험 — 공실↑ 임대료↓</div>
-      <div class="legend-row"><div class="legend-dot" style="background:#f59e0b;"></div>중위험 — 공실 보통 임대료 중간</div>
-      <div class="legend-row"><div class="legend-dot" style="background:#2a78d6;"></div>저위험 — 공실↓ 임대료↑</div>
+      <div class="legend-title">공실 위험도 (지속성+추세)</div>
+      <div class="legend-row"><div class="legend-dot" style="background:#e34948;"></div>고위험 — 누적 공실↑ 악화 추세↑</div>
+      <div class="legend-row"><div class="legend-dot" style="background:#f59e0b;"></div>중위험 — 공실 보통 완만 변동</div>
+      <div class="legend-row"><div class="legend-dot" style="background:#2a78d6;"></div>저위험 — 공실 낮음 임대료 견조</div>
     </div>
   </div>
   <div class="cards-box" id="cards"></div>
 </div>
 
-<div class="insight-box">
-  <div class="insight-title">📌 클러스터 분석 인사이트 — 진단모델 활용 전략</div>
-  <div class="insight-grid">
-    <div class="insight-card" style="border-color:#e34948;">
-      <div class="insight-label" style="color:#e34948;">🔴 고위험군 우선 타깃 ({high_count}개 시도)</div>
-      <div class="insight-body">{high_regions} 등 상가·오피스 공실률이 함께 높고 임대료는 정체된 지역이다. 방치 공실이 집중되어 매칭 수요가 가장 높으며, 지자체 협력 창업 지원 프로그램과 연계 시 즉각적인 효과가 기대된다.</div>
-    </div>
-    <div class="insight-card" style="border-color:#f59e0b;">
-      <div class="insight-label" style="color:#d97706;">🟡 중위험군 성장 거점 ({mid_count}개 시도)</div>
-      <div class="insight-body">{mid_regions} 등 중위험군은 임대료가 어느 정도 형성되어 창업 성공 가능성이 상대적으로 높다. 서비스 확산 거점으로 활용 가능하다.</div>
-    </div>
-    <div class="insight-card" style="border-color:#2a78d6;">
-      <div class="insight-label" style="color:#2a78d6;">🔵 저위험군 전략 ({low_count}개 시도)</div>
-      <div class="insight-body">{low_regions}은 공실률이 낮고 임대료가 높아 청년 창업자 진입 장벽이 크다. 이면도로·골목 상권 틈새 공실에 집중하고 팝업·단기 임대 형태의 매칭 모델이 효과적이다.</div>
-    </div>
-  </div>
-</div>
 
-<div class="source">※ 분석 방법: K-Means 클러스터링 (k=3, 6개 변수 표준화, k-means++ 초기화, random_state=42)<br>
- 데이터: 한국부동산원 상업용부동산 임대동향조사 (2026년 1분기 실제 공표 수치)<br>
-세종은 오피스 임대동향 조사 미실시 지역으로 K-means 학습(16개 시도)에서는 제외했고, 실측된 상가 공실률·임대료 4개 변수만으로 최근접 중심점(부분거리 방식)을 찾아 군집을 배정했다. 
-<br>오피스 값은 채우지 않았으며, 클러스터 평균에도 세종의 오피스 수치는 포함하지 않았다.</div>
+
+
+<div class="source">※ 분석 방법: K-Means 클러스터링 (k=3, 12개 시계열 종합 변수 표준화, k-means++ 초기화, random_state=42)<br>
+데이터: 한국부동산원 상업용부동산 임대동향조사 (2024년 3분기 ~ 2026년 1분기, 7개 분기 전체)<br>
+지속성(7개 분기 평균)과 추세(최근 2년간 증감폭)를 동시 반영해 단일 시점 스냅샷의 한계를 보완했습니다.<br>
+세종은 오피스 임대동향 조사 미실시 지역으로 K-means 학습(16개 시도)에서는 제외했고, 실측된 상가 지표(공실률·임대료 평균 및 변동폭) 8개 변수만으로 최근접 중심점(부분거리 방식)을 찾아 군집을 배정했습니다.</div>
 
 <script>
 const data = {data_json};
@@ -261,7 +284,6 @@ L.tileLayer('https://{{s}}.tile.openstreetmap.org/{{z}}/{{x}}/{{y}}.png', {{
 }}).addTo(map);
 
 data.forEach(d => {{
-  const officeText = d.vac_office == null ? '오피스 데이터 없음' : `오피스공실 ${{d.vac_office}}%`;
   const circle = L.circleMarker([d.lat, d.lng], {{
     radius: 14,
     fillColor: d.color,
@@ -269,13 +291,13 @@ data.forEach(d => {{
     weight: 2,
     fillOpacity: 0.9,
   }}).addTo(map);
-  circle.bindTooltip(`<b>${{d.name}}</b> (${{d.label}})<br>상가공실 ${{d.vac_large}}% | ${{officeText}}`);
+  circle.bindTooltip(`<b>${{d.name}}</b> (${{d.label}})<br>상가공실 ${{d.vac_large}}% (2년 변동: ${{d.diff_vac_large >= 0 ? '+' : ''}}${{d.diff_vac_large}}%p)`);
 }});
 
 const cards = document.getElementById('cards');
-[{{c:0,label:'고위험',desc:'공실 심각 + 저임대료',color:'#e34948'}},
- {{c:1,label:'중위험',desc:'공실 보통 + 중임대료',color:'#f59e0b'}},
- {{c:2,label:'저위험',desc:'공실 낮음 + 고임대료',color:'#2a78d6'}}].forEach(cl => {{
+[{{c:0,label:'고위험',desc:'누적 공실↑ 악화 추세↑',color:'#e34948'}},
+ {{c:1,label:'중위험',desc:'공실 보통 완만 변동',color:'#f59e0b'}},
+ {{c:2,label:'저위험',desc:'공실 낮음 임대료 견조',color:'#2a78d6'}}].forEach(cl => {{
   const g = data.filter(d => d.cluster === cl.c);
   if (!g.length) return;
   const avg = k => {{
@@ -289,11 +311,48 @@ const cards = document.getElementById('cards');
       <div class="stat-box"><div class="stat-label">중대형상가 공실률</div><div class="stat-val" style="color:${{cl.color}};">${{avg('vac_large')}}%</div></div>
       <div class="stat-box"><div class="stat-label">소규모상가 공실률</div><div class="stat-val" style="color:${{cl.color}};">${{avg('vac_small')}}%</div></div>
       <div class="stat-box"><div class="stat-label">오피스 공실률 (세종 제외)</div><div class="stat-val" style="color:${{cl.color}};">${{avg('vac_office')}}%</div></div>
+      <div class="stat-box"><div class="stat-label">중대형상가 2년 변동폭</div><div class="stat-val">${{avg('diff_vac_large')}}%p</div></div>
       <div class="stat-box"><div class="stat-label">중대형상가 임대료</div><div class="stat-val">${{avg('rent_large')}}천원/㎡</div></div>
-      <div class="stat-box"><div class="stat-label">소규모상가 임대료</div><div class="stat-val">${{avg('rent_small')}}천원/㎡</div></div>
-      <div class="stat-box"><div class="stat-label">오피스 임대료 (세종 제외)</div><div class="stat-val">${{avg('rent_office')}}천원/㎡</div></div>
+      <div class="stat-box"><div class="stat-label">중대형임대료 2년 변동폭</div><div class="stat-val">${{avg('diff_rent_large')}}천원/㎡</div></div>
     </div>
   </div>`;
+}});
+
+const quarters = {quarters_json};
+const trend = {trend_json};
+const trendColors = {{ "고위험군": "#e34948", "중위험군": "#eda100", "저위험군": "#2a78d6" }};
+const trendDash = {{ "고위험군": [], "중위험군": [6,3], "저위험군": [2,2] }};
+const trendPoint = {{ "고위험군": "circle", "중위험군": "rect", "저위험군": "triangle" }};
+
+new Chart(document.getElementById('trendChart'), {{
+  type: 'line',
+  data: {{
+    labels: quarters,
+    datasets: Object.keys(trend).map(name => ({{
+      label: name,
+      data: trend[name],
+      borderColor: trendColors[name],
+      backgroundColor: trendColors[name] + "22",
+      borderDash: trendDash[name],
+      pointStyle: trendPoint[name],
+      borderWidth: 2,
+      pointRadius: 4,
+      tension: 0.25,
+      fill: false,
+    }}))
+  }},
+  options: {{
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {{
+      legend: {{ position: 'bottom', labels: {{ font: {{ size: 12 }}, usePointStyle: true }} }},
+      tooltip: {{ callbacks: {{ label: ctx => `${{ctx.dataset.label}}: ${{ctx.parsed.y}}%` }} }}
+    }},
+    scales: {{
+      y: {{ title: {{ display: true, text: '공실률 (%)' }}, ticks: {{ callback: v => v + '%' }} }},
+      x: {{ grid: {{ display: false }} }}
+    }}
+  }}
 }});
 </script>
 </body>
